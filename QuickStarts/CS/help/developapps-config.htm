@@ -1,0 +1,173 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Entering Configuration Information</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Entering Configuration Information</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+	<p class="dtH1">In addition to the configuration information required by the 
+	Enterprise Library Data Access Application Block, EasyObjects.NET uses information in the 
+	configuration file to determine which dynamic query provider to use. Create the configuration information with the 
+	Configuration Console. To use the Configuration Console with EasyObjects.NET, 
+	you will first have to copy the EasyObject DLLs to the same folder as the 
+	Console. </p>
+	<h4>To copy the configuration DLLs to the Configuration Console folder</h4>
+	<ol>
+		<li>Locate the the EasyObjects\bin folder.</li>
+	<li>Copy the NCI.EasyObjects.dll and 
+	NCI.EasyObjects.Configuration.Design.dll files to the same location as the 
+	Enterprise Library Configuration Console (the default location is C:\Program 
+	Files\Microsoft Enterprise Library June 2005\bin).</li>
+		<li>To run the Configuration Console, click Start, point 
+	to All Programs, point to Microsoft patterns and practices, point to 
+	Enterprise Library, and then click Configuration Console.</li>
+</ol>
+	<h4>To create the configuration information</h4>
+	<ol>
+		<li>If you are starting a new file, click the New 
+		Application icon on the toolbar in the upper-left pane. If you are 
+		opening an existing file, click the Open Existing Application icon. 
+		Right-click the application root node, point to New, and then click Data 
+		Access Application Block Configuration . This generates a Data Access 
+		subtree. (It also generates a Configuration Application Block. For more 
+		information, see the Configuration Application Block documentation.)
+		</li>
+		<li>
+		<p class="dtH1">The default name of the database is Database Instance1. 
+		If you want to change the name, click the Name property field in the 
+		right-hand pane, and then enter the name you want. </li>
+		<li>
+		<p class="dtH1">The default database type is SQL Server. If you are 
+		using another type of database, click the SQL Server . In the right-side 
+		pane, click the TypeName property field that displays the fully 
+		qualified name of the SQL Server database. </li>
+		<li>
+		<p class="dtH1">Click the Ellipses(...) drop-down box. </li>
+		<li>
+		<p class="dtH1">The Type Selector dialog box appears. </li>
+		<li>
+		<p class="dtH1">Select from one of the existing database type assemblies 
+		or, if you are using a custom provider, click Load Assembly. </li>
+		<li>
+		<p class="dtH1">The default name of the connection string is Connection 
+		String1. Rename the connection string if you want. </li>
+		<li>
+		<p class="dtH1">Right-click the name of the connection string. Click 
+		either Password Parameter or Parameter. The Password Parameter option 
+		lets you include a masked password in the connection string as a defense 
+		against someone seeing you enter the password used for connecting to the 
+		database. In either case, the default name is Parameter 1. You can 
+		change the name if you want. </li>
+		<li>
+		<p class="dtH1">If you clicked Parameter go to step 12. If you clicked 
+		Password Parameter, click Parameter 1, click the Masked Value property 
+		field in the right-side pane. </li>
+		<li>
+		<p class="dtH1">Click the Ellipses(...) drop-down box. The Set Password 
+		dialog box appears. </li>
+		<li>
+		<p class="dtH1">Enter the password. Confirm the password. Click OK. Note 
+		that the parameter is saved as plain text. If you want to hide it you 
+		must turn on encryption. To learn how to do this, refer to the 
+		Configuration Application Block documentation. </li>
+		<li>
+		<p class="dtH1">If you clicked Parameter, click Parameter 1, and then 
+		click the Value property field in the right-side pane. Enter the value.
+		</li>
+		<li>
+		<p class="dtH1">The default for Integrated Security is True . With 
+		integrated security, a network user can access a SQL Server database 
+		without supplying a separate logon identification or password because 
+		SQL Server obtains the user and password information from Windows. If 
+		you want to turn off Integrated Security, click Integrated Security, 
+		click the Value field in the right-side pane, and then change the value 
+		to False. </li>
+		<li>
+		<p class="dtH1">The default value for the connection string data source 
+		is server. You can change this if you want by clicking server , 
+		right-clicking in the Value field in the right-side pane and entering 
+		the new name. You can also right-click server, click Rename, and then 
+		enter the new name. </li>
+		<li>
+		<p class="dtH1">The default value for the database name is database. You 
+		can change this if you want by clicking database , right-clicking the 
+		Value field in the right-side pane and entering the new name. You can 
+		also right-click server, click Rename and enter the new name. </li>
+		<li>
+		<p class="dtH1">Right-click the application root node, point to New, and 
+		then click EasyObjects.NET Dynamic Query Provider . This generates an 
+		EasyObjects.NET subtree.</li>
+		<li>
+		<p class="dtH1">The default database type is SQL Server. If you are 
+		using another type of database, click the SQL Server . In the right-side 
+		pane, click the TypeName property field that displays the fully 
+		qualified name of the SQL Server database. </li>
+		<li>
+		<p class="dtH1">Click the Ellipses(...) drop-down box. </li>
+		<li>
+		<p class="dtH1">The Type Selector dialog box appears. </li>
+		<li>
+		<p class="dtH1">Select from one of the existing database type assemblies 
+		or, if you are using a custom provider, click Load Assembly. </li>
+		<li>
+		<p class="dtH1">The default value for the dynamic query instance name is 
+		Dynamic Query Instance. You 
+		can change this if you want by clicking dynamic query instance, right-clicking the 
+		Value field in the right-side pane and entering the new name. You can 
+		also right-click Dynamic Query Instance, click Rename and enter the new name. </li>
+		<li>
+		<p class="dtH1">Save the changes.</li>
+	</ol>
+<h4>Usage Notes</h4>
+<p class="dtH1">The Configuration Console creates a configuration file for each application 
+block and for EasyObjects. The application configuration file (typically named either App.config or 
+Web.config) contains information about which application blocks the application 
+is configured to use and the path of those configuration 
+files. By default, the path of each configuration file is 
+the current directory of the application configuration file.</p>
+<p class="dtH1">When you use the Configuration Console to open the App.config file and change 
+configuration settings, the modified application block configuration files are 
+saved to the same directory as the App.config file. However, each time a project 
+successfully builds, Visual Studio automatically copies the App.config file to 
+the target directory and renames it to executable .exe.config. This means you 
+must also copy the relevant configuration files to the target 
+directory.
+	</p>
+<p class="dtH1">You can copy the application block configuration files to the target directory 
+either manually or use the Visual Studio Build Events property to have them be 
+copied each time the project is built. To make sure all block configuration 
+files are copied to the proper directory, use the following command as the 
+post-build event command line:</p>
+<p class="dtH1"><pre>copy &quot;$(ProjectDir)*.config&quot; &quot;$(TargetDir)&quot;</pre>
+</div>
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps.htm">
+	Developing Applications with EasyObjects.NET</a>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

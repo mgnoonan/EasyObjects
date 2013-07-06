@@ -1,0 +1,94 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Key Scenarios</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-LEFT: 22px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Key Scenarios</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	This topic describes the most common situations developers must address when 
+	accessing a database. Each scenario explains the task, describes a 
+	real-world situation where such a task might arise, and includes code 
+	demonstrating how to use EasyObjects.NET to complete the 
+	task. The scenarios are as follows:<ul>
+		<li>
+		<a href="developapps-loading.htm">
+		Loading an EasyObject business object</a>. This scenario 
+		illustrates how you can use the <b>LoadByPrimaryKey</b> method to retrieve 
+		a single row of data, or use the <b>LoadAll</b> method to retrieve all 
+		rows from the database table.   
+		</li>
+		<li>
+		<a href="developapps-saving.htm">
+		Adding and Updating data in an EasyObject business object</a>. This scenario illustrates 
+		how you can use the <b>AddNew</b> method to one or multiple rows to your 
+		business object, then call the <b>Save</b> method to save the data to 
+		the database. It also illustrates how you can update data by loading the 
+		business object first, changing the data and then calling the <b>Save</b> method.  
+		</li>
+		<li>
+		<a href="developapps-queries.htm">
+		Creating dynamic queries</a>. This scenario 
+		illustrates how you can use<b> WhereParameters</b> and<b> </b>the <b>
+		Query</b> method to 
+		create your own database-independent dynamic queries <i>without writing 
+		SQL code</i>. If you change database stores, you do not have to change 
+		any dynamic query code.  
+		</li>
+		<li>
+		<a href="developapps-binding.htm">
+		Databinding and Looping</a>. This 
+		scenario illustrates how you can use the <b>DefaultView</b> property to 
+		bind your EasyObjects business objects to a databound control. This 
+		scenario also illustrates how to loop through all the rows in the 
+		EasyObject business object using the<b> MoveNext</b> method.
+		</li>
+		<li>
+		<a href="developapps-transactions.htm">
+		Performing Multiple Updates Within a Transaction</a>. This scenario 
+		illustrates how you can use the <b>TransactionManager</b> class to perform multiple operations against a database, 
+		where it is essential that either all operations succeed or none 
+		succeed. 
+		</li>
+		<li>
+		<a href="developapps-custom.htm">
+		Calling a custom stored procedure</a>. This scenario illustrates how to 
+		call your existing stored procedures using the <b>LoadFromSql</b> 
+		methods. This scenario is particularly important if you are 
+		reverse-engineering an existing application.</li>
+		<li>
+		<a href="developapps-xml.htm">
+		Retrieving Multiple Rows as XML</a>. This scenario illustrates how you 
+		can use the <b>ToXml</b> and <b>Serialize</b> methods to 
+		convert the current data stored in the EasyObject business object to an XML format. </li>
+	</ul>
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps-details.htm">
+	Details of Development Tasks</a> <!--Footer Start-->
+	</p>
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+<!--Feedback Link-->
+		<p>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

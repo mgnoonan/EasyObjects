@@ -1,0 +1,232 @@
+﻿##|TYPE Template
+##|UNIQUEID 87d76e73-aa92-4e33-b582-a5b49828e0ec
+##|TITLE EasyObjects 2 VbNet Concrete Class
+##|NAMESPACE EasyObject.VbNet
+##|SOURCE_TYPE Source
+##|OUTPUT_LANGUAGE VB.Net
+##|COMMENTS_BEGIN
+All Databases use this tempate
+##|COMMENTS_END
+##|GUI_ENGINE Microsoft Script
+##|GUI_LANGUAGE VBScript
+##|GUI_BEGIN
+Dim cmbDatabases
+Dim lstTables
+Dim chk
+
+Sub setup()
+
+	If context.Objects.ContainsKey("DnpUtils") Then
+		DnpUtils.ReadInputFromCache(context)
+	End if
+
+	ui.Title = "Generate VB.NET dOOdad Concrete Class"
+	ui.Width  = 330
+	ui.Height = 560
+	ui.BackColor = "wheat"
+	
+	' Grab default output path
+	Dim sOutputPath
+	sOutputPath = ""
+	If input.Contains("defaultOutputPath") Then 
+		sOutputPath = input.Item("defaultOutputPath")
+	End If
+
+	ui.AddLabel "lblPath", "Output file path: ",  "Select the output path."
+	ui.AddTextBox "txtPath", sOutputPath, "Select the Output Path."
+	ui.AddFilePicker "btnPath", "Select Path", "Select the Output Path.", "txtPath", true
+	
+	ui.AddLabel "lblNameSpace", "Default Namespace", "Enter the default NameSpace"
+	ui.AddTextbox "txtNamespace" ,sNamespace , "Enter a namespace for the Entity Classes"	
+	
+	' List Databases in a ComboBox
+	ui.AddLabel "lblDatabases", "Select a database:", "Select a database in the dropdown below."
+	Set cmbDatabases = ui.AddComboBox("cmbDatabase", "Select a database.")
+
+	' List Tables in a listbox
+	ui.AddLabel "lblTables", "Select tables:", "Select tables from the listbox below."
+	Set lstTables = ui.AddListBox ("lstTables", "Select tables:")
+	'lstTables.IsMultiSelect = false
+	lstTables.Height = 120
+	
+	' Attach the onchange event to the cmbDatabases control.
+	setupDatabaseDropdown cmbDatabases
+	cmbDatabases.AttachEvent "onchange", "cmbDatabases_onchange"
+			
+	' Database instance
+	ui.AddLabel "lblDatabase", "Database instance: (leave blank for default)",  "Select the database instance name."
+	ui.AddTextBox "txtDatabase", "", "Override the default database instance."
+	
+	' Dynamic query instance
+	ui.AddLabel "lblDynamicQuery", "Dynamic Query instance: (leave blank for default)",  "Select the dynamic query instance name."
+	ui.AddTextBox "txtDynamicQuery", "", "Override the default dynamic query instance."
+	
+	' Dynamic query default
+	ui.AddCheckBox "chkQueryType", "Use Dynamic Queries", false, "If checked, use dynamic queries instead of stored procedures"
+
+	ui.ShowGUI = true
+
+End Sub
+
+Sub setupDatabaseDropdown(cmbDatabases)
+	cmbDatabases.BindData MyMeta.Databases
+
+	If Not MyMeta.DefaultDatabase Is Nothing Then
+		cmbDatabases.SelectedValue = MyMeta.DefaultDatabase.Name
+		bindTables cmbDatabases.SelectedValue
+	End If
+End Sub
+
+Sub bindTables(sDatabase)
+	Set db = MyMeta.Databases(sDatabase)
+	lstTables.BindData(db.Tables)
+End Sub
+
+' Event Handler
+Sub cmbDatabases_onchange(control)
+	Set cmbDatabases = ui.item("cmbDatabase")
+	bindTables cmbDatabases.SelectedText
+End Sub
+##|GUI_END
+##|BODY_MODE Markup
+##|BODY_ENGINE Microsoft Script
+##|BODY_LANGUAGE VBScript
+##|BODY_TAG_START <%
+##|BODY_TAG_END %>
+##|BODY_BEGIN
+<%
+'------------------------------------------------------------------------------
+' Copyright 2005 by Noonan Consulting Inc.
+' All Rights Reserved 
+'
+' Permission to use, copy, modify, and distribute this software and its 
+' documentation for any purpose and without fee is hereby granted, 
+' provided that the above copyright notice appear in all copies and that 
+' both that copyright notice and this permission notice appear in 
+' supporting documentation. 
+'
+' NCI DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS 
+' SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY 
+' AND FITNESS, IN NO EVENT SHALL NCI BE LIABLE FOR ANY 
+' SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES 
+' WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, 
+' WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER 
+' TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE 
+' OR PERFORMANCE OF THIS SOFTWARE. 
+'------------------------------------------------------------------------------
+' VbNet_EasyObjects_ConcreteClass.vbgen
+' Last Update : 09/02/2005
+'------------------------------------------------------------------------------
+
+If context.Objects.ContainsKey("DnpUtils") Then
+	DnpUtils.SaveInputToCache(context)
+End if
+
+Dim objTable
+Dim objColumn
+Dim tableNames
+Dim namespace
+Dim databaseName
+Dim strFilename
+Dim strFilenameBase
+
+' Save the output file for this Table
+strFilenameBase = input.Item("txtPath")
+
+intLen = Len(strFilenameBase)
+intPos = InStrRev(strFilenameBase, "\") 
+
+If Not intPos = intLen Then
+	strFilenameBase = strFilenameBase & "\"
+End If
+
+' Grab the namespace
+namespace = TrimSpaces(input.Item("txtNamespace"))
+
+databaseName  = input.Item("cmbDatabase")
+Set database = MyMeta.Databases(databaseName)
+
+' Set the Language for our column data types
+MyMeta.Language = "VB"
+
+' Grab the choices the user made in our UI Script (see Interface Code tab)
+Set tableNames = input.Item("lstTables")
+
+' Set the default command type
+commandType = "CommandType.StoredProcedure"
+If input.Item("chkQueryType") Then commandType = "CommandType.Text"
+
+' Loop through the tables the user selected and generate the business entities
+For intLp = 0 To tableNames.Count - 1
+
+	Set objTable = database.Tables(tablenames.item(intLp))
+	
+%>
+' Generated by MyGeneration Version # (<%= input.Item("__version") %>)
+
+Imports System
+Imports System.Data
+Imports System.Data.Common
+<%
+	If Len(namespace) > 1 Then
+		output.writeLn vbCrLf & "NameSpace " & namespace
+	End if 
+%>
+Public Class <%= TrimSpaces(objTable.Alias) %> 
+	Inherits <%= "_" & TrimSpaces(objTable.Alias) %>
+
+	Public Sub New()
+		Me.DefaultCommandType = <%= commandType %>
+<%		output.tabLevel = 2
+
+		If Len(Trim(input.Item("txtDatabase"))) > 0 Then
+			output.autoTabLn Replace("Me.DatabaseInstanceName = ""{0}""", "{0}", Trim(input.Item("txtDatabase")))
+		End If
+
+		If Len(Trim(input.Item("txtDynamicQuery"))) > 0 Then
+			output.autoTabLn Replace("Me.DynamicQueryInstanceName = ""{0}""", "{0}", Trim(input.Item("txtDynamicQuery")))
+		End If
+%>	End Sub
+
+End Class
+<%
+	If Len(namespace) > 1 Then
+		output.writeLn vbCrLf & "End NameSpace"
+	End if 
+	
+	' Save the output file for this Table
+	strFilename = strFilenameBase & objTable.Alias & ".vb"
+
+	output.save strFilename, "d"
+	strBuffer = strBuffer & output.text
+	output.clear
+Next '  tableName
+	
+If tableNames.Count > 1 Then
+	output.write "' Files created in the output directory"
+Else
+	output.write strBuffer
+End If
+
+Function TrimSpaces(str)
+
+	Dim tname
+	Dim name
+	Dim char
+	Dim l
+
+	name = ""
+	tname = str
+	l = Len(tname)
+
+	For j = 1 To l
+		char = Mid(tname, j, 1)
+		If Not char = " " Then
+			name = name & char
+		End If
+	Next
+
+	TrimSpaces = name
+End Function
+%>
+##|BODY_END

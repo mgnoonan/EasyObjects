@@ -1,0 +1,72 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Retrieving Multiple Rows as XML</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Retrieving Multiple Rows as XML</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+	<p>An example of where you may want to use XML data is within a web service, 
+	or to save data to another target besides a database.</p>
+	<h2>Typical Goals</h2>
+	<p>In this scenario, the goal is to retrieve data from the database and 
+	convert it to an XML format.</p>
+
+	<h2>Solution</h2>
+	<p>Use the <b>ToXml</b> method provided by the <b>
+	EasyObject</b> class to convert the data from the database to an XML string. 
+	Use the <b>FromXml </b>method to load the business object from an XML string 
+	(typically generated using ToXml).</p>
+	<h2>Using ToXml</h2>
+	<p>The following code shows how to use the <b>ToXml </b>method.</p>
+	<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Products prod = new Products();
+prod.LoadAll();
+
+txtDisplay.Text = prod.ToXml();
+
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+ Dim prod As Products = New Products
+prod.LoadAll()
+
+txtDisplay.Text = prod.ToXml()
+</pre>
+	<h2>Usage Notes</h2>
+	<p>The <b>ToXml</b> method does not respect the DataRowState of the 
+	EasyObject. If you need to maintain the DataRowState, use the <b>Serialize</b> 
+	method instead.</p>
+	<!-- See Also -->
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps-scenarios.htm">
+	Key Scenarios</a>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

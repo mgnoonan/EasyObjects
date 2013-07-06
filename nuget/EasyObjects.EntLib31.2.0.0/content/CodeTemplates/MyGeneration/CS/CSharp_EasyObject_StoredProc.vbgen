@@ -1,0 +1,442 @@
+﻿##|TYPE Template
+##|UNIQUEID 523a2083-1ca5-4dc9-a0c8-769b452c71e0
+##|TITLE EasyObjects 2 C# - Invoke a Stored Procedure
+##|NAMESPACE EasyObject.C#
+##|SOURCE_TYPE Source
+##|OUTPUT_LANGUAGE C#
+##|GUI_ENGINE Microsoft Script
+##|GUI_LANGUAGE VBScript
+##|GUI_BEGIN
+Dim cmbDatabases
+Dim lstProcs
+Dim cmbProcType
+Dim txtSpecialChar
+Dim specialChar
+
+Sub setup()
+
+	If Not input.Contains("lstTables") Or Not input.Contains("txtPath") Then
+
+	If context.Objects.ContainsKey("DnpUtils") Then
+		DnpUtils.ReadInputFromCache(context)
+	End if
+
+		ui.Width  = 340
+		ui.Height = 500
+		
+		ui.Title = "Generate C# EasyObject code to Execute a Stored Procedure."
+		
+		' Grab default output path
+		Dim sOutputPath
+		sOutputPath = ""
+		If input.Contains("defaultOutputPath") Then 
+			sOutputPath = input.Item("defaultOutputPath")
+		End If
+
+		ui.AddLabel "lblPath", "Output file path: ",  "Select the output path."
+		ui.AddTextBox "txtPath", sOutputPath, "Select the Output Path."
+		ui.AddFilePicker "btnPath", "Select Path", "Select the Output Path.", "txtPath", true
+
+		' List Databases in a ComboBox
+		ui.AddLabel "lblDatabases", "Select a database:", "Select a database in the dropdown below."
+		Set cmbDatabases = ui.AddComboBox("cmbDatabase", "Select a database.")
+
+		' List Tables in a listbox
+		ui.AddLabel "lblStoredProcs", "Select a Stored Procedure:", "Select a Stored Procedure from the listbox below."
+		Set lstProcs = ui.AddListBox ("lstProcs", "Select a Stored Procedure:")
+		lstProcs.IsMultiSelect = true
+		lstProcs.Height = 120
+		
+		ui.AddLabel "lblProcType", "Purpose of the Stored Procedure Type:", "What do you want this stored procedure to be used for?"
+		Set cmbProcType = ui.AddComboBox("cmbProcType", "Stored Procedure Type.")		
+		cmbProcType.Item("L") = "Entity Load/Return DataSet"		
+		cmbProcType.Item("N") = "ExecuteNonQuery"	
+		cmbProcType.Item("R") = "Return a DataReader"	
+		cmbProcType.Item("V") = "Return a RETURN_VALUE"	
+		cmbProcType.SelectedValue = "N"
+		
+		ui.AddLabel "lblSpecialChar", "Prefix: ",  ""
+		
+		Select Case MyMeta.DriverString  
+			Case "ACCESS"
+				'cmbDrivers.Item("OleDb") = "OleDb"
+				'cmbDrivers.SelectedValue = "OleDb"
+				ui.AddTextBox "txtSpecialChar", "@", "Leading character for your parameters, ie, @ or _"					
+			Case "SQL"
+				'cmbDrivers.Item("OleDb") = "OleDb"
+				'cmbDrivers.Item("SqlClient") = "SqlClient"			
+				'cmbDrivers.SelectedValue = "SqlClient"
+				ui.AddTextBox "txtSpecialChar", "@", "Leading character for your parameters, ie, @ or _"					
+			Case "ORACLE"
+				'cmbDrivers.Item("OracleClient") = "OracleClient"			
+				'cmbDrivers.SelectedValue = "OracleClient"	
+				ui.AddTextBox "txtSpecialChar", ":", "Leading character for your parameters, ie, @ or _"				
+		    Case "FIREBIRD"
+				'cmbDrivers.Item("FirebirdSql") = "FirebirdSql"			
+				'cmbDrivers.SelectedValue = "FirebirdSql"
+				ui.AddTextBox "txtSpecialChar", "$", "Leading character for your parameters, ie, @ or _"			
+		End Select	
+		
+		ui.AddCheckBox "chkStatic", "Create static method", False, "Toggle between static and vitual method generation"
+
+		' Attach the onchange event to the cmbDatabases control.
+		setupDatabaseDropdown cmbDatabases
+		cmbDatabases.AttachEvent "onchange", "cmbDatabases_onchange"
+		
+		ui.ShowGUI = true
+	Else 
+		ui.ShowGUI = false
+	End if
+
+End Sub
+
+Sub setupDatabaseDropdown(cmbDatabases)
+	cmbDatabases.BindData MyMeta.Databases
+
+	If Not MyMeta.DefaultDatabase Is Nothing Then
+		cmbDatabases.SelectedValue = MyMeta.DefaultDatabase.Name
+		bindProcedures cmbDatabases.SelectedValue
+	End If
+End Sub
+
+Sub bindProcedures(sDatabase)
+	Set db = MyMeta.Databases(sDatabase)
+	lstProcs.BindData(db.Procedures)
+End Sub
+
+' Event Handler
+Sub cmbDatabases_onchange(control)
+	Set cmbDatabases = ui.item("cmbDatabase")
+	bindProcedures cmbDatabases.SelectedText
+End Sub
+##|GUI_END
+##|BODY_MODE Markup
+##|BODY_ENGINE Microsoft Script
+##|BODY_LANGUAGE VBScript
+##|BODY_TAG_START <%
+##|BODY_TAG_END %>
+##|BODY_BEGIN
+<%
+'------------------------------------------------------------------------------
+' Copyright 2005 by Noonan Consulting Inc.
+' All Rights Reserved 
+'
+' Permission to use, copy, modify, and distribute this software and its 
+' documentation for any purpose and without fee is hereby granted, 
+' provided that the above copyright notice appear in all copies and that 
+' both that copyright notice and this permission notice appear in 
+' supporting documentation. 
+'
+' NCI DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS 
+' SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY 
+' AND FITNESS, IN NO EVENT SHALL NCI BE LIABLE FOR ANY 
+' SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES 
+' WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, 
+' WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER 
+' TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE 
+' OR PERFORMANCE OF THIS SOFTWARE. 
+'------------------------------------------------------------------------------
+' CSharp_EasyObject_StoredProc.vbgen
+' Last Update : 02/07/2007
+'------------------------------------------------------------------------------
+
+If context.Objects.ContainsKey("DnpUtils") Then
+	DnpUtils.SaveInputToCache(context)
+End if
+
+Dim bFirst
+Dim name
+Dim pname
+Dim objProc
+Dim objParam
+Dim procNames
+Dim language
+Dim databaseName
+Dim database
+Dim specialChar
+Dim procType
+Dim paramName
+Dim str
+Dim ref
+Dim skipOutParams
+Dim chkStatic
+
+Dim IDbCommand
+Dim IDataParameter
+
+procType = input.Item("cmbProcType")
+specialChar = input.Item("txtSpecialChar")
+chkStatic = input.Item("chkStatic")
+
+If procType = "N" Then
+	skipOutParams = false
+Else
+	skipOutParams = true
+End If
+
+' Set the Language for our column data types
+MyMeta.Language = "C#"
+
+' Grab the choices the user made in our UI Script (see Interface Code tab)
+Set procNames = input.Item("lstProcs")
+
+databaseName  = input.Item("cmbDatabase")
+Set database = MyMeta.Databases(databaseName)
+%>using System.Data;
+using System.Data.Common;
+using System.Collections.Specialized;	
+using Microsoft.Practices.EnterpriseLibrary.Data;
+using NCI.EasyObjects;
+<%
+' Loop through the tables the user selected and generate the business entities
+For intLp = 0 To procNames.Count - 1
+
+	Set objProc = database.Procedures(procNames.item(intLp))
+%>
+public <%
+	output.write GetScopeType(chkStatic) & " "
+	If procType = "V" Then
+		For Each objParam in objProc.Parameters
+			If objParam.Direction = 4 Then
+				output.write objParam.LanguageType
+			End If
+		Next
+	Else
+		output.write GetReturnType(procType, chkStatic)
+	End If
+	output.write " " & GetProcName(objProc) & "(" 
+	bFirst = true
+	For Each objParam in objProc.Parameters
+		If skipOutParams And (objParam.Direction = 2 or objParam.Direction = 3) Then
+			' Do Nothing
+		Else
+			If Not objParam.Direction = 4 Then 'ParamDirection.ReturnValue Then
+				
+				If Not bFirst Then
+					output.write ", "
+					'output.write "				"
+				End If
+				
+				' Is it an output parameter
+				If objParam.Direction = 2 or objParam.Direction = 3 Then
+					ref = "ref "
+				Else
+					ref = ""
+				End If
+
+				output.write ref & objParam.LanguageType & " " & StripSpecialChars(GetAlias(objParam), specialChar)
+
+				bFirst = false
+			End If
+		End If
+	Next 
+	output.write ")" & vbCrLf
+%>{
+	//  Create the Database object, using the default database service. The
+	//  default database service is determined through configuration.
+	Database db = <% If chkStatic Then output.write "DatabaseFactory.CreateDatabase()" Else output.write "GetDatabase()" %>;
+
+	string sqlCommand = <% If Not chkStatic Then output.write "this.SchemaStoredProcedureWithSeparator + " %>"<%= objProc.Name %>";
+	DbCommand dbCommand = db.GetStoredProcCommand(sqlCommand);
+<%	output.tabLevel = 1
+
+	output.autoTabLn ""
+	output.autoTabLn "// Add procedure parameters"
+	
+	If objProc.Parameters.Count > 0 Then
+	
+		For Each objParam in objProc.Parameters
+			If Not objParam.Direction = 4 Then 'ParamDirection.ReturnValue Then
+			
+				name = GetAlias(objParam)
+				name = StripSpecialChars(name, specialChar)
+				
+				If Not skipOutParams And (objParam.Direction = 2 or objParam.Direction = 3) Then
+											
+					output.autoTab "db.AddOutParameter(dbCommand, """ & name & """, " & objParam.DbTargetType
+					if(objParam.CharacterMaxLength > 0) Then
+						output.write ", " & objParam.CharacterMaxLength
+					Else
+						output.write ", 0"
+					End If
+					output.write ");" 	& vbCrLf		
+			 
+				Else						
+					If objParam.Direction = 1 Then 						 
+						output.autoTabLn "db.AddInParameter(dbCommand, """ & name & """, " & objParam.DbTargetType & ", " & name & ");"
+					End If
+				End If
+			Else
+				If procType = "V" Then
+					name = StripSpecialChars(GetAlias(objParam), specialChar)
+					'output.autoTabLn objParam.LanguageType & " result;"
+					output.autoTabLn "db.AddParameter(dbCommand, """ & name & """, " & objParam.DbTargetType & ", ParameterDirection.ReturnValue, null, DataRowVersion.Default, null);"
+				End If
+			End If
+				
+		Next
+
+	End If 	
+	
+	output.autoTabLn ""
+	output.autoTabLn GetMethod(procType, chkStatic) & "(dbCommand);"
+	
+	' Set the Values of any 'ref' input parameters
+	For Each objParam in objProc.Parameters
+		bFirst = true
+		If Not skipOutParams And (objParam.Direction = 2 or objParam.Direction = 3) Then
+			If bFirst Then
+				output.autoTabLn ""
+				output.autoTabLn "// Get output parameter values"
+				bFirst = False
+			End If
+			name = StripSpecialChars(GetAlias(objParam), specialChar)
+			output.autoTabLn "db.GetParameterValue(dbCommand, """ & name & """);" & vbCrLf
+		End If
+		If objParam.Direction = 4 And procType = "V" Then
+			name = StripSpecialChars(GetAlias(objParam), specialChar)
+			output.autoTabLn ""
+			output.autoTabLn "// Get return value"
+			output.autoTabLn "return (" & objParam.LanguageType & ")db.GetParameterValue(dbCommand, """ & name & """);"
+		End If
+	Next
+	
+	output.writeLn "}"				
+		
+
+	' Save the output file for this Table
+	Dim filename
+	filename = input.item("txtPath")
+
+	Dim length
+	Dim pos
+	lenth = Len(filename)
+	pos = InStrRev(filename, "\") 
+
+	If Not pos = lenth Then
+		filename = filename & "\"
+	End If
+
+	filename = filename & objProc.Alias & ".cs"
+
+	output.save filename, false
+	buffer = buffer & output.text
+	output.clear
+Next '  tableName
+	
+	output.write buffer
+ %>
+ 
+ <% 
+'===========================================================================
+' These are support routines called by the above scirpt
+'===========================================================================
+Function GetAlias(objColumn)
+	Dim name
+	name = TrimSpaces(objColumn.Alias)
+	GetAlias = UCase(Left(name, 1)) & Right(name, Len(name) -1)
+End Function
+
+Function GetName(objColumn)
+	Dim name
+	name = objColumn.Name
+	GetName = UCase(Left(name, 1)) & Right(name, Len(name) -1)
+End Function
+
+Function TrimSpaces(str)
+
+	Dim tname
+	Dim name
+	Dim char
+	Dim l
+
+	name = ""
+	tname = str
+	l = Len(tname)
+
+	For j = 1 To l
+		char = Mid(tname, j, 1)
+		If Not char = " " Then
+			name = name & char
+		End If
+	Next
+
+	TrimSpaces = name
+End Function
+
+Function StripSpecialChars(sData, sSpecialChar)
+	StripSpecialChars = Replace(sData, sSpecialChar, "")
+End Function
+
+Function GetProcName(objProc)
+	
+	alias = TrimSpaces(objProc.Alias)
+	
+	pos = Instr(alias, "_")
+	If pos > 0 Then
+		alias = Mid(alias, pos + 1)
+	End If
+	
+	GetProcName = alias
+	
+End Function
+
+Function GetScopeType(isStatic)
+
+	If isStatic = True Then
+		GetScopeType = "static"
+	Else
+		GetScopeType = "virtual"
+	End If
+
+End Function
+
+Function GetReturnType(sProcType, isStatic)
+
+	Select Case sProcType
+		Case "L"
+			If isStatic = True Then
+				GetReturnType = "DataSet"
+			Else
+				GetReturnType = "bool"
+			End If
+		Case "N"
+			GetReturnType = "void"
+		Case "R"
+			GetReturnType = "IDataReader"
+		Case "V"
+			GetReturnType = "object"
+	End Select	
+
+End Function
+
+Function GetMethod(sProcType, isStatic)
+
+	If isStatic = True Then
+		Select Case sProcType
+			Case "L"
+				GetMethod = "return db.ExecuteDataSet"
+			Case "N"
+				GetMethod = "db.ExecuteNonQuery"
+			Case "R"
+				GetMethod = "return db.ExecuteReader"
+			Case "V"
+				GetMethod = "db.ExecuteNonQuery"
+		End Select	
+	Else
+		Select Case sProcType
+			Case "L"
+				GetMethod = "return base.LoadFromSql"
+			Case "N"
+				GetMethod = "base.LoadFromSqlNoExec"
+			Case "R"
+				GetMethod = "return base.LoadFromSqlReader"
+			Case "V"
+				GetMethod = "base.LoadFromSqlNoExec"
+		End Select	
+	End If
+	
+End Function
+
+%>
+##|BODY_END

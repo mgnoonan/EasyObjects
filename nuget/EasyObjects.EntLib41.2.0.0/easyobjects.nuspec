@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<package> 
+  <metadata> 
+    <id>EasyObjects.NET.EL4</id> 
+    <title>EasyObjects.NET (EL4)</title>
+    <version>2.0.2</version> 
+    <authors>Matthew Noonan</authors> 
+    <owners>Matthew Noonan</owners>
+    <description>An object relational mapper library that uses the Data Access Application Block (DAAB) from the Enterprise Library.</description> 
+    <projectUrl>http://www.easyobjects.net</projectUrl>
+    <licenseUrl>http://www.easyobjects.net/Downloads.aspx</licenseUrl>
+    <tags>easyobjects orm enterprise library entlib data access application block daab .net35</tags>
+    <language>en-US</language> 
+    <dependencies>
+      <dependency id="EntLib4.DAAB" version="4.1.0" />
+    </dependencies> 
+  </metadata> 
+</package>

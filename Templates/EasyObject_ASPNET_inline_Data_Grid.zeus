@@ -1,0 +1,2018 @@
+﻿##|TYPE Template
+##|UNIQUEID db694175-ea25-4d2e-a5ca-b89376bae485
+##|TITLE EasyObjects ASP.NET Inline DataGrid (C#)
+##|NAMESPACE EasyObject.C#.Web.InlineGrid
+##|OUTPUT_LANGUAGE C#
+##|COMMENTS_BEGIN
+Generates a single ASP.NET page that not only lists but edits data
+##|COMMENTS_END
+##|GUI_ENGINE .Net Script
+##|GUI_LANGUAGE C#
+##|GUI_BEGIN
+<%#REFERENCE System.Windows.Forms.dll, System.Drawing.dll %>
+<%#NAMESPACE System.Windows.Forms, System.Drawing %>
+
+public class GeneratedGui : DotNetScriptGui
+{
+	public GeneratedGui(ZeusContext context) : base(context) {}
+	
+	public override void Setup() 
+	{
+		MyForm form = new MyForm(MyMeta, context.Input); 
+
+		if (form.ShowDialog() != DialogResult.OK) 
+		{
+			ui.IsCanceled = true;
+		}
+	}
+}
+
+public class MyForm : System.Windows.Forms.Form
+{
+	private ITable table;
+	private IView view;
+	private IDatabase database;
+	private IZeusInput input;
+
+	private System.Windows.Forms.Button btnOkay;
+
+	private dbRoot myMeta;
+	private System.Windows.Forms.TabControl tab;
+	private System.Windows.Forms.TabPage tabSettings;
+	private System.Windows.Forms.TextBox txtOutputPath;
+	private System.Windows.Forms.Button btnPath;
+	private System.Windows.Forms.CheckedListBox chklistOptions;
+	private System.Windows.Forms.TextBox txtNamespace;
+	private System.Windows.Forms.Label l1;
+	private System.Windows.Forms.Label label1;
+	private System.Windows.Forms.TextBox txtBasePageName;
+	private System.Windows.Forms.Label lblBasePageName;
+	private System.Windows.Forms.ListBox lboxTables;
+	private System.Windows.Forms.Label lblTables;
+	private System.Windows.Forms.FolderBrowserDialog pathFinder;
+	private System.Windows.Forms.TabPage tabSourceDest;
+	private System.Windows.Forms.CheckBox chkboxSourceOverride;
+	private System.Windows.Forms.ListBox chklistViews;
+	private System.Windows.Forms.ListBox lboxColumns;
+	private System.Windows.Forms.Label label4;
+	private System.Windows.Forms.Button btnCancel;
+	private System.Windows.Forms.ListBox lboxRelationships;
+	private System.Windows.Forms.ListBox lboxRelatedColumns;
+	private System.Windows.Forms.ComboBox cboxDatabases;
+	private System.Windows.Forms.Label lblDatabases;
+	private System.Windows.Forms.Button btnRemMapping;
+	private System.Windows.Forms.Label label2;
+	private System.Windows.Forms.Label label3;
+	private System.Windows.Forms.Label label5;
+	private System.Windows.Forms.TextBox txtDateFormat;
+	private System.Windows.Forms.TextBox txtDecimalFormat;
+	private System.Windows.Forms.Label label6;
+	private System.Windows.Forms.TextBox txtUsing;
+	private System.Windows.Forms.Label label7;
+	private System.Windows.Forms.Button btnUP;
+	private System.Windows.Forms.Button btntDN;
+	private System.Windows.Forms.Button btnAddMapping;
+
+	/// <summary>
+	/// Required designer variable.
+	/// </summary>
+	private System.ComponentModel.Container components = null;
+
+	public MyForm(dbRoot myMeta, IZeusInput input)
+	{
+		this.myMeta = myMeta;
+		this.input  = input;
+		InitializeComponent();
+	}	
+
+	private void MyForm_Load(object sender, System.EventArgs e)
+	{
+		this.txtOutputPath.Text = input["defaultOutputPath"] as string;
+
+		this.chklistOptions.Items.Add("Grid is read only?", CheckState.Unchecked);
+		this.chklistOptions.Items.Add("Generate base page?", CheckState.Unchecked);
+		this.chklistOptions.Items.Add("Required Field Validators?", CheckState.Checked);
+		this.chklistOptions.Items.Add("Set 'MaxLength' on string fields?", CheckState.Checked);
+
+		this.cboxDatabases.DataSource    = this.myMeta.Databases;
+		this.cboxDatabases.DisplayMember = "Name";	
+	
+		if(this.myMeta.DefaultDatabase != null)
+		{
+			this.database = this.myMeta.DefaultDatabase;
+			this.cboxDatabases.SelectedIndex = this.cboxDatabases.FindStringExact(this.myMeta.DefaultDatabase.Name);
+		}
+
+		if(this.myMeta.DefaultDatabase != null)
+		{
+			this.lboxTables.DataSource = this.myMeta.DefaultDatabase.Tables;
+			this.lboxTables.DisplayMember = "Name";
+
+			this.chklistViews.DataSource = this.myMeta.DefaultDatabase.Views;
+			this.chklistViews.DisplayMember = "Name";
+		}	
+	}
+
+	public void btnOkay_Click(object sender, EventArgs args) 
+	{
+		if ((cboxDatabases.SelectedIndex >= 0) && (lboxTables.SelectedIndex >= 0)) 
+		{
+			IDatabase database = this.cboxDatabases.SelectedValue as IDatabase;
+			ITable    table    = this.lboxTables.SelectedValue as ITable;
+			IView     view     = this.chklistViews.SelectedValue as IView;
+
+			string columns = "";
+			string relationships = "";
+			string colDelimiter = "";
+			string relDelimiter = "";
+			string tcol;
+
+			foreach(string col in this.lboxColumns.SelectedItems)
+			{
+				columns += colDelimiter;
+
+				// we can't edit col
+				tcol = col;
+
+				int start = tcol.IndexOf(" ==>");
+				if(start != -1)
+				{
+					// Add this to our Relationship list
+					relationships += relDelimiter;
+					relationships += tcol.Replace(" ==> ", "^");
+					relDelimiter = "|";
+
+					// Strip off " ==> ???" and add to our Column List
+					tcol = col.Substring(0, start);
+				}
+
+				columns += tcol;
+				colDelimiter = "|";
+			}
+
+
+			// Store parameters in Zeus so this template will work in project files
+			this.input["DatabaseName"]  = database.Name;
+			this.input["Table"]         = table.Name;
+			this.input["Columns"]	    = columns;
+			this.input["Relationships"] = relationships;
+			this.input["Using"]         = this.txtUsing.Text.Trim();
+
+			if(view != null && this.chkboxSourceOverride.Checked)
+			{
+				this.input["View"] = view.Name;
+			}
+			else
+			{
+				this.input["View"] = "";
+			}
+
+			this.input["ReadOnly"]   = false;
+			this.input["BasePage"]   = false;
+			this.input["Validators"]   = false;
+			this.input["SetMaxLength"]   = false;
+
+			foreach(object o in this.chklistOptions.CheckedItems)
+			{
+				switch(o as string)
+				{
+					case "Grid is read only?":
+						this.input["ReadOnly"] = true;
+						break;
+
+					case "Generate base page?":
+						this.input["BasePage"] = true;
+						break;
+
+					case "Required Field Validators?":
+						this.input["Validators"] = true;
+						break;
+
+					case "Set 'MaxLength' on string fields?":
+						this.input["SetMaxLength"] = true;
+						break;
+				}
+			}
+
+			this.input["BasePageName"]   = this.txtBasePageName.Text;
+			this.input["NameSpace"]      = this.txtNamespace.Text;
+			this.input["OutputPath"]     = this.txtOutputPath.Text;
+			this.input["DateFormat"]     = this.txtDateFormat.Text;
+			this.input["DecimalFormat"]  = this.txtDecimalFormat.Text;
+		
+			if(columns.Length == 0)
+			{
+				MessageBox.Show("You must select at least one column", "Select Columns or Click Cancel");
+				return;
+			}
+			else
+			{
+				this.DialogResult = DialogResult.OK;
+				this.Close();
+			}
+		}
+		else 
+		{
+			MessageBox.Show("Please choose a Table");
+		}
+	}
+
+	private void btnCancel_Click(object sender, System.EventArgs e)
+	{
+		this.DialogResult = DialogResult.Cancel;
+		this.Close();		
+	}
+
+	/// <summary>
+	/// Clean up any resources being used.
+	/// </summary>
+	protected override void Dispose( bool disposing )
+	{
+		if( disposing )
+		{
+			if (components != null) 
+			{
+				components.Dispose();
+			}
+		}
+		base.Dispose( disposing );
+	}
+
+	/// <summary>
+	/// Required method for Designer support - do not modify
+	/// the contents of this method with the code editor.
+	/// </summary>
+	private void InitializeComponent()
+	{
+		this.btnOkay = new System.Windows.Forms.Button();
+		this.tab = new System.Windows.Forms.TabControl();
+		this.tabSourceDest = new System.Windows.Forms.TabPage();
+		this.btnUP = new System.Windows.Forms.Button();
+		this.label3 = new System.Windows.Forms.Label();
+		this.label2 = new System.Windows.Forms.Label();
+		this.btnRemMapping = new System.Windows.Forms.Button();
+		this.btnAddMapping = new System.Windows.Forms.Button();
+		this.lboxRelatedColumns = new System.Windows.Forms.ListBox();
+		this.lboxRelationships = new System.Windows.Forms.ListBox();
+		this.lboxColumns = new System.Windows.Forms.ListBox();
+		this.chklistViews = new System.Windows.Forms.ListBox();
+		this.chkboxSourceOverride = new System.Windows.Forms.CheckBox();
+		this.lboxTables = new System.Windows.Forms.ListBox();
+		this.lblTables = new System.Windows.Forms.Label();
+		this.label4 = new System.Windows.Forms.Label();
+		this.btntDN = new System.Windows.Forms.Button();
+		this.tabSettings = new System.Windows.Forms.TabPage();
+		this.label7 = new System.Windows.Forms.Label();
+		this.txtUsing = new System.Windows.Forms.TextBox();
+		this.l1 = new System.Windows.Forms.Label();
+		this.txtNamespace = new System.Windows.Forms.TextBox();
+		this.chklistOptions = new System.Windows.Forms.CheckedListBox();
+		this.btnPath = new System.Windows.Forms.Button();
+		this.txtOutputPath = new System.Windows.Forms.TextBox();
+		this.label1 = new System.Windows.Forms.Label();
+		this.txtBasePageName = new System.Windows.Forms.TextBox();
+		this.lblBasePageName = new System.Windows.Forms.Label();
+		this.label5 = new System.Windows.Forms.Label();
+		this.txtDateFormat = new System.Windows.Forms.TextBox();
+		this.txtDecimalFormat = new System.Windows.Forms.TextBox();
+		this.label6 = new System.Windows.Forms.Label();
+		this.pathFinder = new System.Windows.Forms.FolderBrowserDialog();
+		this.btnCancel = new System.Windows.Forms.Button();
+		this.cboxDatabases = new System.Windows.Forms.ComboBox();
+		this.lblDatabases = new System.Windows.Forms.Label();
+		this.tab.SuspendLayout();
+		this.tabSourceDest.SuspendLayout();
+		this.tabSettings.SuspendLayout();
+		this.SuspendLayout();
+		// 
+		// btnOkay
+		// 
+		this.btnOkay.Location = new System.Drawing.Point(712, 448);
+		this.btnOkay.Name = "btnOkay";
+		this.btnOkay.Size = new System.Drawing.Size(80, 23);
+		this.btnOkay.TabIndex = 3;
+		this.btnOkay.Text = "OK";
+		this.btnOkay.Click += new System.EventHandler(this.btnOkay_Click);
+		// 
+		// tab
+		// 
+		this.tab.Controls.Add(this.tabSourceDest);
+		this.tab.Controls.Add(this.tabSettings);
+		this.tab.HotTrack = true;
+		this.tab.Location = new System.Drawing.Point(0, 8);
+		this.tab.Name = "tab";
+		this.tab.SelectedIndex = 0;
+		this.tab.Size = new System.Drawing.Size(792, 424);
+		this.tab.TabIndex = 4;
+		// 
+		// tabSourceDest
+		// 
+		this.tabSourceDest.Controls.Add(this.btnUP);
+		this.tabSourceDest.Controls.Add(this.label3);
+		this.tabSourceDest.Controls.Add(this.label2);
+		this.tabSourceDest.Controls.Add(this.btnRemMapping);
+		this.tabSourceDest.Controls.Add(this.btnAddMapping);
+		this.tabSourceDest.Controls.Add(this.lboxRelatedColumns);
+		this.tabSourceDest.Controls.Add(this.lboxRelationships);
+		this.tabSourceDest.Controls.Add(this.lboxColumns);
+		this.tabSourceDest.Controls.Add(this.chklistViews);
+		this.tabSourceDest.Controls.Add(this.chkboxSourceOverride);
+		this.tabSourceDest.Controls.Add(this.lboxTables);
+		this.tabSourceDest.Controls.Add(this.lblTables);
+		this.tabSourceDest.Controls.Add(this.label4);
+		this.tabSourceDest.Controls.Add(this.btntDN);
+		this.tabSourceDest.Location = new System.Drawing.Point(4, 22);
+		this.tabSourceDest.Name = "tabSourceDest";
+		this.tabSourceDest.Size = new System.Drawing.Size(784, 398);
+		this.tabSourceDest.TabIndex = 1;
+		this.tabSourceDest.Text = "Source/Destination";
+		// 
+		// btnUP
+		// 
+		this.btnUP.Location = new System.Drawing.Point(648, 368);
+		this.btnUP.Name = "btnUP";
+		this.btnUP.Size = new System.Drawing.Size(56, 23);
+		this.btnUP.TabIndex = 19;
+		this.btnUP.Text = "Up";
+		this.btnUP.Click += new System.EventHandler(this.btnUP_Click);
+		// 
+		// label3
+		// 
+		this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.label3.Location = new System.Drawing.Point(280, 184);
+		this.label3.Name = "label3";
+		this.label3.Size = new System.Drawing.Size(200, 23);
+		this.label3.TabIndex = 18;
+		this.label3.Text = "ComboBox Display Column";
+		// 
+		// label2
+		// 
+		this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.label2.Location = new System.Drawing.Point(280, 16);
+		this.label2.Name = "label2";
+		this.label2.Size = new System.Drawing.Size(200, 23);
+		this.label2.TabIndex = 17;
+		this.label2.Text = "Relationships";
+		// 
+		// btnRemMapping
+		// 
+		this.btnRemMapping.Location = new System.Drawing.Point(280, 360);
+		this.btnRemMapping.Name = "btnRemMapping";
+		this.btnRemMapping.Size = new System.Drawing.Size(104, 23);
+		this.btnRemMapping.TabIndex = 16;
+		this.btnRemMapping.Text = "Remove Mapping";
+		this.btnRemMapping.Click += new System.EventHandler(this.btnRemMapping_Click);
+		// 
+		// btnAddMapping
+		// 
+		this.btnAddMapping.Location = new System.Drawing.Point(392, 360);
+		this.btnAddMapping.Name = "btnAddMapping";
+		this.btnAddMapping.Size = new System.Drawing.Size(96, 23);
+		this.btnAddMapping.TabIndex = 15;
+		this.btnAddMapping.Text = "Add Mapping";
+		this.btnAddMapping.Click += new System.EventHandler(this.btnAddMapping_Click);
+		// 
+		// lboxRelatedColumns
+		// 
+		this.lboxRelatedColumns.Location = new System.Drawing.Point(280, 208);
+		this.lboxRelatedColumns.Name = "lboxRelatedColumns";
+		this.lboxRelatedColumns.Size = new System.Drawing.Size(208, 147);
+		this.lboxRelatedColumns.TabIndex = 13;
+		// 
+		// lboxRelationships
+		// 
+		this.lboxRelationships.HorizontalScrollbar = true;
+		this.lboxRelationships.Location = new System.Drawing.Point(280, 40);
+		this.lboxRelationships.Name = "lboxRelationships";
+		this.lboxRelationships.Size = new System.Drawing.Size(208, 121);
+		this.lboxRelationships.TabIndex = 12;
+		this.lboxRelationships.SelectedIndexChanged += new System.EventHandler(this.lboxRelationships_SelectedIndexChanged);
+		// 
+		// lboxColumns
+		// 
+		this.lboxColumns.HorizontalScrollbar = true;
+		this.lboxColumns.Location = new System.Drawing.Point(504, 40);
+		this.lboxColumns.Name = "lboxColumns";
+		this.lboxColumns.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+		this.lboxColumns.Size = new System.Drawing.Size(264, 316);
+		this.lboxColumns.TabIndex = 10;
+		// 
+		// chklistViews
+		// 
+		this.chklistViews.Location = new System.Drawing.Point(16, 208);
+		this.chklistViews.Name = "chklistViews";
+		this.chklistViews.Size = new System.Drawing.Size(248, 173);
+		this.chklistViews.TabIndex = 9;
+		this.chklistViews.SelectedValueChanged += new System.EventHandler(this.chklistViews_SelectedValueChanged);
+		// 
+		// chkboxSourceOverride
+		// 
+		this.chkboxSourceOverride.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.chkboxSourceOverride.Location = new System.Drawing.Point(16, 183);
+		this.chkboxSourceOverride.Name = "chkboxSourceOverride";
+		this.chkboxSourceOverride.Size = new System.Drawing.Size(184, 24);
+		this.chkboxSourceOverride.TabIndex = 8;
+		this.chkboxSourceOverride.Text = "Source Override ( View )";
+		this.chkboxSourceOverride.CheckStateChanged += new System.EventHandler(this.chkboxSourceOverride_CheckStateChanged);
+		// 
+		// lboxTables
+		// 
+		this.lboxTables.Location = new System.Drawing.Point(16, 40);
+		this.lboxTables.Name = "lboxTables";
+		this.lboxTables.Size = new System.Drawing.Size(248, 121);
+		this.lboxTables.TabIndex = 6;
+		this.lboxTables.SelectedValueChanged += new System.EventHandler(this.lboxTables_SelectedValueChanged);
+		// 
+		// lblTables
+		// 
+		this.lblTables.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.lblTables.Location = new System.Drawing.Point(16, 16);
+		this.lblTables.Name = "lblTables";
+		this.lblTables.Size = new System.Drawing.Size(200, 23);
+		this.lblTables.TabIndex = 4;
+		this.lblTables.Text = "Source/Destination ( Table )";
+		// 
+		// label4
+		// 
+		this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.label4.Location = new System.Drawing.Point(504, 16);
+		this.label4.Name = "label4";
+		this.label4.Size = new System.Drawing.Size(200, 23);
+		this.label4.TabIndex = 4;
+		this.label4.Text = "Columns in the Grid";
+		// 
+		// btntDN
+		// 
+		this.btntDN.Location = new System.Drawing.Point(712, 368);
+		this.btntDN.Name = "btntDN";
+		this.btntDN.Size = new System.Drawing.Size(56, 23);
+		this.btntDN.TabIndex = 19;
+		this.btntDN.Text = "Down";
+		this.btntDN.Click += new System.EventHandler(this.btntDN_Click);
+		// 
+		// tabSettings
+		// 
+		this.tabSettings.Controls.Add(this.label7);
+		this.tabSettings.Controls.Add(this.txtUsing);
+		this.tabSettings.Controls.Add(this.l1);
+		this.tabSettings.Controls.Add(this.txtNamespace);
+		this.tabSettings.Controls.Add(this.chklistOptions);
+		this.tabSettings.Controls.Add(this.btnPath);
+		this.tabSettings.Controls.Add(this.txtOutputPath);
+		this.tabSettings.Controls.Add(this.label1);
+		this.tabSettings.Controls.Add(this.lblBasePageName);
+		this.tabSettings.Controls.Add(this.txtBasePageName);
+		this.tabSettings.Controls.Add(this.label5);
+		this.tabSettings.Controls.Add(this.txtDateFormat);
+		this.tabSettings.Controls.Add(this.txtDecimalFormat);
+		this.tabSettings.Controls.Add(this.label6);
+		this.tabSettings.Location = new System.Drawing.Point(4, 22);
+		this.tabSettings.Name = "tabSettings";
+		this.tabSettings.Size = new System.Drawing.Size(784, 398);
+		this.tabSettings.TabIndex = 0;
+		this.tabSettings.Text = "Settings";
+		// 
+		// label7
+		// 
+		this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.label7.Location = new System.Drawing.Point(432, 144);
+		this.label7.Name = "label7";
+		this.label7.Size = new System.Drawing.Size(160, 23);
+		this.label7.TabIndex = 7;
+		this.label7.Text = "Additional \'using\' statements:";
+		// 
+		// txtUsing
+		// 
+		this.txtUsing.AcceptsReturn = true;
+		this.txtUsing.Location = new System.Drawing.Point(432, 168);
+		this.txtUsing.Multiline = true;
+		this.txtUsing.Name = "txtUsing";
+		this.txtUsing.Size = new System.Drawing.Size(328, 112);
+		this.txtUsing.TabIndex = 6;
+		this.txtUsing.Text = "";
+		// 
+		// l1
+		// 
+		this.l1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.l1.Location = new System.Drawing.Point(24, 40);
+		this.l1.Name = "l1";
+		this.l1.Size = new System.Drawing.Size(80, 23);
+		this.l1.TabIndex = 5;
+		this.l1.Text = "Output Path:";
+		// 
+		// txtNamespace
+		// 
+		this.txtNamespace.Location = new System.Drawing.Point(136, 72);
+		this.txtNamespace.Name = "txtNamespace";
+		this.txtNamespace.Size = new System.Drawing.Size(272, 20);
+		this.txtNamespace.TabIndex = 4;
+		this.txtNamespace.Text = "Grids";
+		// 
+		// chklistOptions
+		// 
+		this.chklistOptions.CheckOnClick = true;
+		this.chklistOptions.Location = new System.Drawing.Point(432, 40);
+		this.chklistOptions.Name = "chklistOptions";
+		this.chklistOptions.Size = new System.Drawing.Size(328, 94);
+		this.chklistOptions.TabIndex = 3;
+		// 
+		// btnPath
+		// 
+		this.btnPath.Location = new System.Drawing.Point(368, 40);
+		this.btnPath.Name = "btnPath";
+		this.btnPath.Size = new System.Drawing.Size(40, 24);
+		this.btnPath.TabIndex = 2;
+		this.btnPath.Text = "...";
+		this.btnPath.Click += new System.EventHandler(this.btnPath_Click);
+		// 
+		// txtOutputPath
+		// 
+		this.txtOutputPath.Location = new System.Drawing.Point(136, 40);
+		this.txtOutputPath.Name = "txtOutputPath";
+		this.txtOutputPath.Size = new System.Drawing.Size(216, 20);
+		this.txtOutputPath.TabIndex = 1;
+		this.txtOutputPath.Text = "";
+		// 
+		// label1
+		// 
+		this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.label1.Location = new System.Drawing.Point(24, 72);
+		this.label1.Name = "label1";
+		this.label1.Size = new System.Drawing.Size(80, 23);
+		this.label1.TabIndex = 5;
+		this.label1.Text = "NameSpace:";
+		// 
+		// txtBasePageName
+		// 
+		this.txtBasePageName.Location = new System.Drawing.Point(136, 104);
+		this.txtBasePageName.Name = "lblBasePageName";
+		this.txtBasePageName.Size = new System.Drawing.Size(272, 20);
+		this.txtBasePageName.TabIndex = 4;
+		this.txtBasePageName.Text = "BasePage";
+		// 
+		// lblBasePageName
+		// 
+		this.lblBasePageName.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.lblBasePageName.Location = new System.Drawing.Point(24, 104);
+		this.lblBasePageName.Name = "lblBasePageName";
+		this.lblBasePageName.Size = new System.Drawing.Size(96, 23);
+		this.lblBasePageName.TabIndex = 5;
+		this.lblBasePageName.Text = "BasePage Name:";
+		// 
+		// label5
+		// 
+		this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.label5.Location = new System.Drawing.Point(24, 136);
+		this.label5.Name = "label5";
+		this.label5.Size = new System.Drawing.Size(96, 23);
+		this.label5.TabIndex = 5;
+		this.label5.Text = "Date Format:";
+		// 
+		// txtDateFormat
+		// 
+		this.txtDateFormat.Location = new System.Drawing.Point(136, 136);
+		this.txtDateFormat.Name = "txtDateFormat";
+		this.txtDateFormat.Size = new System.Drawing.Size(272, 20);
+		this.txtDateFormat.TabIndex = 4;
+		this.txtDateFormat.Text = "{0:d}";
+		// 
+		// txtDecimalFormat
+		// 
+		this.txtDecimalFormat.Location = new System.Drawing.Point(136, 168);
+		this.txtDecimalFormat.Name = "txtDecimalFormat";
+		this.txtDecimalFormat.Size = new System.Drawing.Size(272, 20);
+		this.txtDecimalFormat.TabIndex = 4;
+		this.txtDecimalFormat.Text = "{0:0.00}";
+		// 
+		// label6
+		// 
+		this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.label6.Location = new System.Drawing.Point(24, 168);
+		this.label6.Name = "label6";
+		this.label6.Size = new System.Drawing.Size(96, 23);
+		this.label6.TabIndex = 5;
+		this.label6.Text = "Decimal Format:";
+		// 
+		// btnCancel
+		// 
+		this.btnCancel.Location = new System.Drawing.Point(624, 448);
+		this.btnCancel.Name = "btnCancel";
+		this.btnCancel.TabIndex = 6;
+		this.btnCancel.Text = "Cancel";
+		this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+		// 
+		// cboxDatabases
+		// 
+		this.cboxDatabases.Location = new System.Drawing.Point(144, 448);
+		this.cboxDatabases.Name = "cboxDatabases";
+		this.cboxDatabases.Size = new System.Drawing.Size(352, 21);
+		this.cboxDatabases.TabIndex = 7;
+		this.cboxDatabases.SelectionChangeCommitted += new System.EventHandler(this.cboxDatabases_SelectionChangeCommitted);
+		// 
+		// lblDatabases
+		// 
+		this.lblDatabases.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
+		this.lblDatabases.Location = new System.Drawing.Point(16, 448);
+		this.lblDatabases.Name = "lblDatabases";
+		this.lblDatabases.Size = new System.Drawing.Size(120, 23);
+		this.lblDatabases.TabIndex = 8;
+		this.lblDatabases.Text = "Select a database:";
+		// 
+		// MyForm
+		// 
+		this.AcceptButton = this.btnOkay;
+		this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
+		this.BackColor = System.Drawing.SystemColors.Control;
+		this.ClientSize = new System.Drawing.Size(800, 486);
+		this.Controls.Add(this.lblDatabases);
+		this.Controls.Add(this.cboxDatabases);
+		this.Controls.Add(this.btnCancel);
+		this.Controls.Add(this.tab);
+		this.Controls.Add(this.btnOkay);
+		this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+		this.HelpButton = true;
+		this.MaximizeBox = false;
+		this.MinimizeBox = false;
+		this.Name = "MyForm";
+		this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+		this.Text = "EasyObjects Inline Grid (ASP.NET / C#)";
+		this.Load += new System.EventHandler(this.MyForm_Load);
+		this.tab.ResumeLayout(false);
+		this.tabSourceDest.ResumeLayout(false);
+		this.tabSettings.ResumeLayout(false);
+		this.ResumeLayout(false);
+
+	}
+
+	private void cboxDatabases_SelectionChangeCommitted(object sender, System.EventArgs e)
+	{
+		IDatabase database = this.cboxDatabases.SelectedValue as IDatabase;
+
+		if(database != null)
+		{
+			if(database.Views.Count == 0)
+			{
+				this.chkboxSourceOverride.Enabled = false;
+			}
+			else
+			{
+				this.chkboxSourceOverride.Enabled = true;
+			}
+
+			this.database = database;
+			this.lboxTables.DataSource = database.Tables;
+			this.lboxTables.DisplayMember = "Name";
+
+			this.chklistViews.DataSource = database.Views;
+			this.chklistViews.DisplayMember = "Name";
+		}	
+	}	
+
+	private void btnPath_Click(object sender, System.EventArgs e)
+	{
+		this.pathFinder.SelectedPath = this.txtOutputPath.Text;
+		if(this.pathFinder.ShowDialog(this) == DialogResult.OK)
+		{
+			this.txtOutputPath.Text = this.pathFinder.SelectedPath;
+		}
+	}
+
+	private void lboxTables_SelectedValueChanged(object sender, System.EventArgs e)
+	{
+		ITable table = this.lboxTables.SelectedValue as ITable;
+
+		if(table != null)
+		{
+			this.lboxRelationships.Items.Clear();
+			BindColumns();
+
+			foreach(IForeignKey fk in table.ForeignKeys)
+			{
+				if(fk.ForeignTable.Name == table.Name)
+				{
+					string comma = "";
+					string s = "";
+					foreach(IColumn c in fk.ForeignColumns)
+					{
+						s += comma;
+						s += c.Name;
+						comma = ", ";
+					}
+
+					s += " ==> " + fk.PrimaryTable.Name;
+					this.lboxRelationships.Items.Add(s);
+				}
+			}
+
+			if(this.lboxRelationships.Items.Count > 0)
+			{
+				this.lboxRelationships.SelectedIndex = 0;
+			}
+
+			BindRelatedColumns();
+		}			
+	}
+
+	private void lboxRelationships_SelectedIndexChanged(object sender, System.EventArgs e)
+	{
+		if(!this.chkboxSourceOverride.Checked)
+		{
+			BindRelatedColumns();
+		}
+	}
+
+	private void btnAddMapping_Click(object sender, System.EventArgs e)
+	{
+		string rel  = this.SelectedRelationship;
+		string col = this.SelectedRelationshipColumn;
+
+		if(!this.chkboxSourceOverride.Checked)
+		{
+			// Table Mapping
+			if(rel != null && rel.Length > 0 && col != null)
+			{
+				string map = rel + "." + col;
+
+				int index = 0;
+				foreach(string entry in this.lboxColumns.Items)
+				{
+					if(map.StartsWith(entry))
+					{
+						this.lboxColumns.Items.RemoveAt(index);
+						this.lboxColumns.Items.Insert(index, map);
+						return;
+					}
+
+					index++;
+				}
+			}
+		}
+		else
+		{
+			// View Mapping
+			if(rel != null && rel.Length > 0 && col != null)
+			{
+				int pos = rel.IndexOf(" ==>");
+
+				string map =  col + " ==> " + this.SelectedView.Name + "." + rel.Substring(0, pos);
+
+				int index = 0;
+				foreach(string entry in this.lboxColumns.Items)
+				{
+					if(map.StartsWith(entry))
+					{
+						this.lboxColumns.Items.RemoveAt(index);
+						this.lboxColumns.Items.Insert(index, map);
+						this.lboxColumns.Items.Remove(rel.Substring(0, pos));
+						return;
+					}
+
+					index++;
+				}
+			}
+		}
+	}
+
+	private void btnRemMapping_Click(object sender, System.EventArgs e)
+	{
+		string map = this.lboxRelationships.SelectedItem as string;
+
+		if(map != null)
+		{
+			if(!this.chkboxSourceOverride.Checked)
+			{
+				// Table Mapping
+				int index = 0;
+				foreach(string entry in this.lboxColumns.Items)
+				{
+					if(entry.StartsWith(map))
+					{
+						int start = entry.IndexOf(" ==>");
+						if(index != -1)
+						{
+							this.lboxColumns.Items.RemoveAt(index);
+							this.lboxColumns.Items.Insert(index, map.Substring(0, start));
+						}
+						return;
+					}
+
+					index++;
+				}
+			}
+			else
+			{
+				// View Mapping
+				int pos = map.IndexOf(" ==>");
+				map = map.Substring(0, pos);
+
+				int index = 0;
+				foreach(string entry in this.lboxColumns.Items)
+				{
+					if(entry.EndsWith(map))
+					{
+						int start = entry.IndexOf(" ==>");
+						if(index != -1)
+						{
+							this.lboxColumns.Items.RemoveAt(index);
+							this.lboxColumns.Items.Insert(index, map);
+
+							pos = entry.IndexOf("=");
+							this.lboxColumns.Items.Add(entry.Substring(0, pos - 1));
+
+						}
+						return;
+					}
+
+					index++;
+				}
+
+			}
+		}
+	}
+
+	private void chkboxSourceOverride_CheckStateChanged(object sender, System.EventArgs e)
+	{
+		BindColumns();
+		BindRelatedColumns();
+	}
+
+	private void chklistViews_SelectedValueChanged(object sender, System.EventArgs e)
+	{
+		if(this.chkboxSourceOverride.Checked)
+		{
+			BindColumns();
+			BindRelatedColumns();
+		}
+	}
+
+	private void BindColumns()
+	{
+		this.lboxColumns.Items.Clear();
+
+		if(this.chkboxSourceOverride.Checked)
+		{
+			foreach(IColumn col in this.SelectedView.Columns)
+			{
+				this.lboxColumns.Items.Add(col.Name);
+			}
+		}
+		else
+		{
+			foreach(IColumn col in this.SelectedTable.Columns)
+			{
+				this.lboxColumns.Items.Add(col.Name);
+			}
+		}
+	}
+
+	private void BindRelatedColumns()
+	{
+		this.lboxRelatedColumns.Items.Clear();
+
+		if(this.chkboxSourceOverride.Checked)
+		{
+			if(this.SelectedView != null)
+			{
+				ITable table = this.SelectedTable;
+
+				foreach(IColumn col in this.SelectedView.Columns)
+				{
+					if(table.Columns[col.Name] == null)
+					{
+						this.lboxRelatedColumns.Items.Add(col.Name);
+					}
+				}
+
+				if(this.lboxRelatedColumns.Items.Count > 0)
+				{
+					this.lboxRelatedColumns.SelectedIndex = 0;
+				}
+			}
+
+		}
+		else
+		{
+			string rel = this.SelectedRelationship;
+
+			if(rel != null && rel.Length > 0)
+			{
+				int index = rel.LastIndexOf(">");
+				rel = rel.Substring(index + 2); 
+
+				ITable primary = this.database.Tables[rel];
+
+				foreach(IColumn col in primary.Columns)
+				{
+					this.lboxRelatedColumns.Items.Add(col.Name);
+				}
+
+				if(this.lboxRelatedColumns.Items.Count > 0)
+				{
+					this.lboxRelatedColumns.SelectedIndex = 0;
+				}
+			}
+		}
+	}
+
+	#region Button UP/DOWN
+	private void btnUP_Click(object sender, System.EventArgs e)
+	{
+		int index = this.lboxColumns.SelectedIndex;
+
+		if(index != -1 && index > 0)
+		{
+			string newBottom = this.lboxColumns.Items[index - 1] as string;
+			string newTop    = this.lboxColumns.Items[index] as string;
+
+			this.lboxColumns.Items.RemoveAt(index);
+			this.lboxColumns.Items.RemoveAt(index - 1);
+
+			this.lboxColumns.Items.Insert(index - 1, newTop);
+			this.lboxColumns.Items.Insert(index, newBottom);
+
+			this.lboxColumns.SelectedIndex = index - 1;
+		}
+	}
+
+	private void btntDN_Click(object sender, System.EventArgs e)
+	{
+		int index = this.lboxColumns.SelectedIndex;
+
+		if(index != -1 && index < this.lboxColumns.Items.Count - 1)
+		{
+			string newBottom = this.lboxColumns.Items[index] as string;
+			string newTop    = this.lboxColumns.Items[index + 1] as string;
+
+			this.lboxColumns.Items.RemoveAt(index + 1);
+			this.lboxColumns.Items.RemoveAt(index);
+
+			this.lboxColumns.Items.Insert(index, newTop);
+			this.lboxColumns.Items.Insert(index + 1, newBottom);
+
+			this.lboxColumns.SelectedIndex = index + 1;
+		}		
+	}
+	#endregion 
+
+	#region Selected Properties
+	private ITable SelectedTable
+	{
+		get
+		{
+			return this.lboxTables.SelectedValue as ITable;
+		}
+	}
+
+	private IView SelectedView
+	{
+		get
+		{
+			if(this.chkboxSourceOverride.Checked)
+			{
+				return this.chklistViews.SelectedValue as IView;
+			}
+			else
+			{
+				return null;
+			}
+		}
+	}
+
+	private string SelectedRelationship
+	{
+		get
+		{
+			return this.lboxRelationships.SelectedItem as string;
+		}
+	}
+
+	private string SelectedRelationshipColumn
+	{
+		get
+		{
+			return this.lboxRelatedColumns.SelectedItem as string;
+		}
+	}
+
+	#endregion
+}
+##|GUI_END
+##|BODY_MODE Markup
+##|BODY_ENGINE .Net Script
+##|BODY_LANGUAGE C#
+##|BODY_TAG_START <%
+##|BODY_TAG_END %>
+##|BODY_BEGIN
+<%
+//============================================================================
+//  EasyObjects ASP.NET Inline DataGrid.zeus                       Version 1.0
+//
+//  Last Update: August 30, 2005
+//
+//  Author: Mike Griffin, modifications for EO by Matt Noonan
+// 
+//  Generates an inline grid for ASP.NET.
+//
+//  Prerequisites: Working EasyObjects
+//============================================================================
+//
+//  Special Thanx goes out to SBC for his very clean and well done
+//  implemenation of his template titled 'ASP.NET InlineGrid (CSharp dOOdads)'
+//
+//============================================================================
+public class GeneratedTemplate : DotNetScriptTemplate
+{
+	public GeneratedTemplate(ZeusContext context) : base(context) {}
+	private string buffer;
+	private string filepath;
+	private string Namespace;
+	private string BasePageClass;
+	private string ClassName;
+	private string DatabaseName;
+	private string TableName;
+	private string TableAlias;
+	private string ViewName;	
+	private ITable table;
+	private IView  view;
+	private string DateFormat;
+	private string DecimalFormat;	
+	private bool Validators;
+	private bool SetMaxLength;
+	private string AdditionalUsing;	
+	private string comma;
+	private string ezObject;
+	private string delimiter = "|";
+	private IDatabase database;
+	private string center = " HeaderStyle-HorizontalAlign=\"Center\" ItemStyle-HorizontalAlign=\"Center\"";
+	private int index;
+	
+	private ArrayList columns = new ArrayList();
+	private Hashtable relations = new Hashtable();
+	
+	public override void Render()
+	{
+		// Filename info
+		filepath = input["OutputPath"].ToString();
+		if (!filepath.EndsWith("\\") ) filepath += "\\";
+		
+		DateFormat      = input["DateFormat"].ToString();
+		DecimalFormat   = input["DecimalFormat"].ToString();		
+		AdditionalUsing = input["Using"].ToString();	
+		Validators      = Convert.ToBoolean(input["Validators"]);
+		SetMaxLength    = Convert.ToBoolean(input["SetMaxLength"]);		
+		
+		Namespace       = input["NameSpace"].ToString();
+		BasePageClass   = input["BasePageName"].ToString();
+		DatabaseName    = input["DatabaseName"].ToString();
+		TableName       = input["Table"].ToString();
+		ViewName        = input["View"].ToString();		
+		ClassName       = TrimSpaces(TableName) + "Grid";
+		
+		database = MyMeta.Databases[DatabaseName];
+		table    = MyMeta.Databases[DatabaseName].Tables[TableName];
+		view     = MyMeta.Databases[DatabaseName].Views[ViewName];
+		
+		TableAlias      = table.Alias;
+		ClassName       = TrimSpaces(TableAlias) + "Grid";
+
+		ezObject  = TrimSpaces(table.Alias);
+		
+		//--------------------------------------------------------------
+		// Populate 'columns' ArrayList
+		//
+		// Column1|Column2|Column3|Column4
+		//--------------------------------------------------------------
+		string temp = input["Columns"].ToString();
+		
+		if(temp.Length == 0)
+		{
+			output.writeln("YOU MUST SELECT COLUMNS FOR THE GRID");
+			return;
+		}		
+		
+		string[] cols = temp.Split(new char[] {'|'});
+		foreach(string col in cols)
+		{
+			columns.Add(col);
+		}
+	
+		//--------------------------------------------------------------	
+		// Populate 'relations' Hashtable
+		//
+		// DepartmentID^Departments.Name|ReportsTo^Employees.LastName
+		//--------------------------------------------------------------	
+		temp = input["Relationships"].ToString();
+		if(temp.Length > 0)
+		{
+			string[] rels = temp.Split(new char[] {'|'});
+			
+			foreach(string relation in rels)
+			{
+				string[] mapping = relation.Split(new char[] {'^'});
+				
+				relations[mapping[0]] = mapping[1];
+			}
+		}
+
+		bool GenerateBasePage = Convert.ToBoolean(input["BasePage"].ToString());
+		if (GenerateBasePage) 
+		{
+			BuildBasePage();
+		}
+
+		BuildHtmlPage();
+		BuildCodeBehindPage();
+		
+		output.write(buffer);
+	}
+	private void BuildBasePage()
+	{
+		// Build the filename
+		string filename = filepath + BasePageClass + ".cs";
+%>
+using System;
+using System.Web;
+
+using NCI.EasyObjects;
+
+namespace <%=Namespace%>
+{
+	/// <summary>
+	/// Summary description for BasePage.
+	/// </summary>
+	public class BasePage : System.Web.UI.Page
+	{
+		public BasePage()
+		{
+			this.Init += new EventHandler(Page_Init);
+			this.Load += new EventHandler(Page_Load);
+		}
+		
+		private void Page_Init(System.Object sender, System.EventArgs e)
+		{
+			TransactionManager.ThreadTransactionMgrReset();
+		}
+	
+		private void Page_Load(object sender, EventArgs e)
+		{
+			if (null != this.ErrorControl)
+			{
+				this.ErrorControl.Visible = false;
+			}
+		}
+	
+		protected virtual System.Web.UI.WebControls.Label ErrorControl
+		{
+			get { return null; }
+		}
+
+		protected void SetErrorText(string errorMessage)
+		{
+			if (null != this.ErrorControl)
+			{
+				this.ErrorControl.Visible = true;
+				this.ErrorControl.Text = errorMessage;
+			}
+		}
+	}
+}
+<%
+		output.save(filename, false);
+		buffer = buffer + output.text;
+		output.clear();
+	}
+	
+	private void BuildHtmlPage()
+	{
+		// Build the filename
+		string filename = filepath + ClassName + ".aspx";
+		output.setPreserveSource(filename, "<!--", "//-->");
+		
+		output.autoTab("<"+"%@ Page Language=\"C#\" Codebehind=\""+ClassName+".aspx.cs\" Inherits=\""+Namespace+"."+ClassName+"\" %"+">"); 
+%>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" > 
+<html>
+  <head>
+	<title><%=ClassName%>Grid</title>
+    <meta name="GENERATOR" Content="Microsoft Visual Studio .NET 7.1">
+    <meta name="CODE_LANGUAGE" Content="C#">
+    <meta name=vs_defaultClientScript content="JavaScript">
+    <meta name=vs_targetSchema content="http://schemas.microsoft.com/intellisense/ie5">
+	<LINK href="styles.css" type="text/css" rel="stylesheet">
+	<script runat="server">
+	bool BoolValue(object o)
+	{
+		if (o == DBNull.Value)
+			return false;
+		return Convert.ToBoolean(o);
+	}	
+	</script>
+  </head>
+<body>
+	<form method="post" runat="server">
+		<table width=100%" cellSpacing="0" cellPadding="0" border="0">
+				<tr>
+					<td width="2%">&nbsp;&nbsp;
+					</td>
+					<td>
+						<asp:Label id="lblErrorMessage" runat="server" ForeColor="Red">Label</asp:Label>
+					</td>
+				</tr>
+			<tr>
+				<td width="2%">&nbsp;&nbsp;
+				</td>
+				<td>
+				<asp:DataGrid id="TheGrid" runat="server" CssClass="dg_Grid" AllowPaging="True" AllowSorting="True" AutoGenerateColumns="False" Width="100%">
+					<FooterStyle CssClass="dg_Footer"></FooterStyle>
+					<SelectedItemStyle CssClass="dg_SelectedItem"></SelectedItemStyle>
+					<AlternatingItemStyle CssClass="dg_AlternatingItem"></AlternatingItemStyle>
+					<ItemStyle CssClass="dg_Item"></ItemStyle>
+					<EditItemStyle VerticalAlign="Top"></EditItemStyle>
+					<HeaderStyle CssClass="dg_Header"></HeaderStyle>		
+					<Columns>
+						<asp:TemplateColumn ItemStyle-Width="80px">
+							<ItemTemplate>
+								<asp:Button id="B1" runat="server" CssClass="button" CommandName="Edit" Text="  Edit  " width="100%" />
+							</ItemTemplate>
+							<EditItemTemplate>
+								<asp:Button id="B2" runat="server" CssClass="button" CommandName="Cancel" Text=" Cancel " width="100%" CausesValidation="False" /><br>
+								<asp:Button id="B3" runat="server" CssClass="button" CommandName="Delete" Text=" Delete " width="100%" CausesValidation="False" /><br>
+								<asp:Button id="B4" runat="server" CssClass="button" CommandName="Update" Text=" Save " width="100%" />
+							</EditItemTemplate>
+						</asp:TemplateColumn>
+						<asp:TemplateColumn SortExpression="PK" HeaderText="PK" Visible="False">
+							<ItemTemplate>				
+		<%				
+						// PK Hidden Column
+						output.tabLevel = 5;
+						output.autoTab("<asp:Label runat=\"server\" Text='<");
+						output.write("%# ");  
+						
+						output.tabLevel = 5;
+						comma = "";
+						foreach( IColumn c in table.PrimaryKeys )
+						{
+							output.write(comma);
+							output.write("DataBinder.Eval(Container.DataItem, \"" + c.Name + "\").ToString()");
+							comma = " + \"|\" + ";
+						}
+						output.write(" %");
+						output.writeln(">' ID=\"PK\"/>");				
+%>						</ItemTemplate>
+						</asp:TemplateColumn>	
+<%
+						// Data columns
+						index  = 1;
+						int rv = 1;
+						foreach( string col in columns ) 
+						{
+							string centerText = "";
+							
+							IColumn c = table.Columns[col];
+							
+							if(c == null)
+							{
+								c = view.Columns[col];
+							}
+							
+							if (c != null) 
+							{
+								if(c.LanguageType == "bool")
+								{
+									centerText = center;
+								}
+									
+								output.autoTabLn("<asp:TemplateColumn SortExpression=\""+c.Name+"\" HeaderText=\""+c.Alias+"\""+centerText+">");
+		
+								output.tabLevel++;
+								output.autoTabLn("<ItemTemplate>");
+								output.tabLevel++;
+								
+								switch(c.LanguageType)
+								{
+									case "decimal":
+									case "double":
+									
+										output.autoTabLn("<asp:Label runat=\"server\" Text='<"+"%# DataBinder.Eval(Container.DataItem, \""+c.Name+"\",\""+DecimalFormat+"\") %"+">' width=\"100%\" />");
+										break;
+										
+									case "DateTime":
+									
+										output.autoTabLn("<asp:Label runat=\"server\" Text='<"+"%# DataBinder.Eval(Container.DataItem, \""+c.Name+"\",\""+DateFormat+"\") %"+">' width=\"100%\" />");
+										break;
+												
+									case "bool":
+									
+										output.autoTabLn("<asp:CheckBox runat=\"server\" Enabled=\"false\" Checked='<"+"%# BoolValue(DataBinder.Eval(Container.DataItem, \""+c.Name+"\")) %"+">' Visible='<"+"%# BoolValue(DataBinder.Eval(Container.DataItem, \""+c.Name+"\")) %"+">' />");						
+										break;
+		
+									default:
+									
+										output.autoTabLn("<asp:Label runat=\"server\" Text='<"+"%# DataBinder.Eval(Container.DataItem, \""+c.Name+"\") %"+">' />");						
+										break;
+								}						
+									
+								output.tabLevel--;
+								output.autoTabLn("</ItemTemplate>");
+								
+								if (!c.IsAutoKey && !c.IsComputed) 
+								{
+									output.autoTabLn("<EditItemTemplate>");
+									output.tabLevel++;
+									
+									if(this.relations.ContainsKey(c.Name))
+									{
+										string[] mapping = this.relations[c.Name].ToString().Split(new char[] {'.'});
+											
+										string relatedTable  = mapping[0];
+										string displayColumn = mapping[1];	
+
+										output.autoTabLn("<asp:DropDownList id=\"lst" + c.Alias + index++ + "\" runat=\"server\"></asp:DropDownList>");
+									}
+									else		
+									{		
+										switch(c.LanguageType)
+										{
+											case "decimal":
+											case "double":
+											
+												output.autoTabLn("<asp:TextBox id=\"txt"+GetAlias(c)+"\" runat=\"server\" Text='<"+"%# DataBinder.Eval(Container.DataItem, \""+c.Name+"\",\""+DecimalFormat+"\") %"+">' width=\"100%\" />");
+												break;
+												
+											case "DateTime":
+											
+												output.autoTabLn("<asp:TextBox id=\"txt"+GetAlias(c)+"\" runat=\"server\" Text='<"+"%# DataBinder.Eval(Container.DataItem, \""+c.Name+"\",\""+DateFormat+"\") %"+">' width=\"100%\" />");
+												break;
+												
+											case "string":
+											
+												if(SetMaxLength)
+												{
+													output.autoTabLn("<asp:TextBox id=\"txt"+GetAlias(c)+"\" runat=\"server\" Text='<"+"%# DataBinder.Eval(Container.DataItem, \""+c.Name+"\") %"+">' MaxLength=\""+c.CharacterMaxLength+"\" width=\"100%\" />");
+												}
+												else
+												{
+													output.autoTabLn("<asp:TextBox id=\"txt"+GetAlias(c)+"\" runat=\"server\" Text='<"+"%# DataBinder.Eval(Container.DataItem, \""+c.Name+"\") %"+">' width=\"100%\" />");
+												}
+													
+												break;										
+														
+											case "bool":
+											
+												output.autoTabLn("<asp:CheckBox id=\"chk"+GetAlias(c)+"\" runat=\"server\" Checked='<"+"%# BoolValue(DataBinder.Eval(Container.DataItem, \""+c.Name+"\")) %"+">' />");						
+												break;
+		
+											default:
+											
+												output.autoTabLn("<asp:TextBox id=\"txt"+GetAlias(c)+"\" runat=\"server\" Text='<"+"%# DataBinder.Eval(Container.DataItem, \""+c.Name+"\") %"+">' width=\"100%\" />");
+												break;
+										}
+										
+										if(Validators && c.LanguageType != "bool" && !c.IsNullable)
+										{
+											output.autoTabLn("<asp:RequiredFieldValidator id=\"R"+rv.ToString()+"\" runat=\"server\" ErrorMessage=\"Required\" ControlToValidate=\"txt"+GetAlias(c)+"\" />");
+											rv++;
+										}
+									}
+									
+									output.tabLevel--;
+									output.autoTabLn("</EditItemTemplate>");
+								}
+								
+								output.tabLevel--;
+								output.autoTabLn("</asp:TemplateColumn>");
+							}
+						}
+%>				
+					</Columns>
+					<PagerStyle CssClass="dg_Pager" HorizontalAlign="Center" PageButtonCount="15" Mode="NumericPages"></PagerStyle>			
+				</asp:DataGrid>		
+			</td>
+			<tr>
+				<td></td>
+				<td>
+					<br><asp:Button id="btnAdd" runat="server" CssClass="button" width="80px" Text="Add"></asp:Button></P>
+				</td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>
+<%
+				output.save(filename, false);
+				buffer = buffer + output.text;
+				output.clear();
+	}
+	
+	private void BuildCodeBehindPage()
+	{
+	    output.tabLevel = 5;	
+		string filename = filepath + ClassName + ".aspx.cs";
+%>
+using System;
+using System.Collections;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Web;
+using System.Web.SessionState;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Web.UI.HtmlControls;
+
+using NCI.EasyObjects;
+
+<%=AdditionalUsing%>
+
+namespace <%=Namespace%>
+{
+	/// <summary>
+	/// Summary description for <%=ezObject%>Grid.
+	/// </summary>
+	public class <%=ezObject%>Grid : BasePage
+	{
+		protected System.Web.UI.WebControls.Label lblErrorMessage;
+		protected System.Web.UI.WebControls.Button btnAdd;
+		protected System.Web.UI.WebControls.DataGrid TheGrid;	
+
+		protected override Label ErrorControl
+		{
+			get
+			{
+				return this.lblErrorMessage;
+			}
+		}
+		
+		private void Page_Load(object sender, System.EventArgs e)
+		{
+			try
+			{
+				if(!this.Page.IsPostBack)
+				{
+					this.PageIndex = 0;
+<%
+					output.autoTab  ("this.SortExpression = ");
+					
+					comma = "";
+					foreach (IColumn column in table.PrimaryKeys)
+					{
+						output.write(comma);
+						//output.write(GetName(column));	
+						//comma = ", ";
+						output.write(table.Alias + "Schema." + GetAlias(column) + ".FieldName");
+						comma = " + \", \" + ";
+					}
+					output.writeln(";");	
+					output.tabLevel = 0;		
+%>		
+					this.SortOrder = "ASC";
+					BindGrid(null);
+				}
+			}
+			catch(Exception ex)
+			{
+				base.SetErrorText(ex.Message);
+			}
+		}
+
+		#region Web Form Designer generated code
+		override protected void OnInit(EventArgs e)
+		{
+			//
+			// CODEGEN: This call is required by the ASP.NET Web Form Designer.
+			//
+			InitializeComponent();
+			base.OnInit(e);
+		}
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
+			this.TheGrid.PageIndexChanged += new System.Web.UI.WebControls.DataGridPageChangedEventHandler(this.TheGrid_PageIndexChanged);
+			this.TheGrid.CancelCommand += new System.Web.UI.WebControls.DataGridCommandEventHandler(this.TheGrid_CancelCommand);
+			this.TheGrid.EditCommand += new System.Web.UI.WebControls.DataGridCommandEventHandler(this.TheGrid_EditCommand);
+			this.TheGrid.SortCommand += new System.Web.UI.WebControls.DataGridSortCommandEventHandler(this.TheGrid_SortCommand);
+			this.TheGrid.UpdateCommand += new System.Web.UI.WebControls.DataGridCommandEventHandler(this.TheGrid_UpdateCommand);
+			this.TheGrid.DeleteCommand += new System.Web.UI.WebControls.DataGridCommandEventHandler(this.TheGrid_DeleteCommand);
+			this.TheGrid.ItemDataBound += new System.Web.UI.WebControls.DataGridItemEventHandler(this.TheGrid_ItemDataBound);
+			this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+			this.Load += new System.EventHandler(this.Page_Load);
+
+		}
+		#endregion
+		
+		private void BindGrid(string[] keys)
+		{
+<% 			output.tabLevel = 3;
+			output.autoTabLn(ezObject + " obj = new " + ezObject + "();"); 
+			
+			if(ViewName.Length > 0)
+			{
+				output.autoTabLn("obj.QuerySource = \"" + ViewName + "\";");
+			}%>
+			if(keys != null)
+			{
+				// Then we're going into edit mode, we're going to show only one line because
+				// we're going to fetch only one record.
+				this.TheGrid.CurrentPageIndex = 0;
+				PopulatePrimaryKeys(obj, keys);
+			}
+
+			if(obj.Query.Load())
+			{
+				obj.Sort = this.SortExpression + " " + this.SortOrder;
+				this.TheGrid.DataSource = obj.DefaultView;
+			}
+			this.TheGrid.DataBind();
+			
+			if(keys != null)
+			{
+<% 				output.tabLevel = 4;
+				index = 1;
+				foreach( string col in columns ) 
+				{
+					IColumn column = table.Columns[col];
+
+					if(relations.ContainsKey(col))
+					{
+						string[] mapping = relations[col].ToString().Split(new char[] {'.'});
+
+						string relatedTable  = mapping[0];
+						string displayColumn = mapping[1];
+						string tcol          = col;
+						
+						if(this.view != null) 
+						{
+							tcol = displayColumn;
+						}
+						
+						output.autoTabLn("if(!obj.IsColumnNull(" + TrimSpaces(table.Alias) + "Schema." + tcol + ".FieldName))");
+						output.autoTabLn("{");
+						output.tabLevel++;
+						output.autoTabLn("DropDownList dd = (DropDownList)this.TheGrid.Items[0].FindControl(\"lst" + GetAlias(column) + index++ +"\");");
+						output.autoTabLn("dd.SelectedValue = obj." + GetAlias(column) + ".ToString();");
+						output.tabLevel--;
+						output.autoTabLn("}");
+					}
+				}
+				output.tabLevel = 0;				
+%>
+			}
+		}
+
+		private void GridBeginEditing(string[] keys)
+		{
+			this.IsNewRecord = false;		
+			this.btnAdd.Visible = false;
+			this.TheGrid.EditItemIndex = 0;
+			BindGrid(keys);
+		}
+		
+		private void GridEndEditing()
+		{
+			this.IsNewRecord = false;
+			this.btnAdd.Visible = true;
+			this.TheGrid.EditItemIndex = -1;
+			BindGrid(null);
+		}
+
+		// "Edit" button
+		private void TheGrid_EditCommand(object source, System.Web.UI.WebControls.DataGridCommandEventArgs e)
+		{
+			string[] keys = this.GetPrimaryKeyData(e.Item);
+			GridBeginEditing(keys);
+		}
+		
+		// "Remove" button
+		private void TheGrid_DeleteCommand(object source, System.Web.UI.WebControls.DataGridCommandEventArgs e)
+		{
+			try
+			{
+				string[] keys = this.GetPrimaryKeyData(e.Item);
+		
+				if(keys != null) 
+				{
+					<% output.autoTabLn(ezObject + " obj = new " + ezObject + "();"); %>
+					PopulatePrimaryKeys(obj, keys);
+					obj.Query.Load();
+					obj.MarkAsDeleted();
+					obj.Save();
+					GridEndEditing();
+				}
+			}
+			catch(Exception ex)
+			{
+				base.SetErrorText(ex.Message);
+			}
+		}
+		
+		// "Update" button
+		private void TheGrid_UpdateCommand(object source, System.Web.UI.WebControls.DataGridCommandEventArgs e)
+		{
+			try
+			{
+				CheckBox chk = null;
+				TextBox txt = null;
+				DropDownList dd = null;
+					
+				<% output.autoTabLn(ezObject + " obj = new " + ezObject + "();"); %>
+				
+				string[] keys = this.GetPrimaryKeyData(e.Item);
+				
+				if(this.IsNewRecord) 
+				{
+					
+					// We were in Add mode, the OrderID is null
+					obj.AddNew();
+					
+<%					output.tabLevel = 5;
+					index = 1;
+					foreach (IColumn column in table.PrimaryKeys)
+					{
+						if(IsInColumns(column))
+						{
+							if(!column.IsAutoKey)
+							{
+								if(this.relations.ContainsKey(column.Name))
+								{
+									string[] mapping = relations[column.Name].ToString().Split(new char[] {'.'});
+									
+									string relatedTable  = mapping[0];
+									string displayColumn = mapping[1];	
+	
+									output.autoTabLn("dd = (DropDownList)e.Item.FindControl(\"lst" + GetAlias(column) + index++ + "\");");
+									output.autoTabLn("obj.s_" + GetAlias(column) + " = dd.SelectedValue;");									
+								}	
+								else
+								{
+									if(column.LanguageType == "bool")
+									{
+										output.autoTabLn("chk = (CheckBox)e.Item.FindControl(\"chk" + GetAlias(column) + "\");");
+										output.autoTabLn("obj." + GetAlias(column) + " = chk.Checked;");							
+									}
+									else
+									{
+										output.autoTabLn("txt = (TextBox)e.Item.FindControl(\"txt" + GetAlias(column) + "\");");
+										output.autoTabLn("obj.s_" + GetAlias(column) + " = txt.Text;");
+									}
+								}
+							}
+						}
+					}
+%>				}
+				else
+				{
+					PopulatePrimaryKeys(obj, keys);
+					obj.Query.Load();
+				}
+				
+<%				
+				output.tabLevel = 4;
+				index = 1;
+				foreach (string columnName in columns)
+				{
+					IColumn column = table.Columns[columnName];
+					
+					if(column == null)
+					{
+						column = view.Columns[columnName];
+					}
+					
+					if(!column.IsInPrimaryKey && !column.IsComputed)
+					{
+						if(this.relations.ContainsKey(column.Name))
+						{
+							string[] mapping = relations[column.Name].ToString().Split(new char[] {'.'});
+							
+							string relatedTable  = mapping[0];
+							string displayColumn = mapping[1];	
+
+							output.autoTabLn("dd = (DropDownList)e.Item.FindControl(\"lst" + GetAlias(column) + index++ + "\");");
+							
+							if(this.view == null)
+							{
+								output.autoTabLn("obj.s_" + GetAlias(column) + " = dd.SelectedValue;");
+							}
+							else
+							{
+								output.autoTabLn("obj.s_" + displayColumn + " = dd.SelectedValue;");									
+							}
+						}	
+						else
+						{
+							if(column.LanguageType == "bool")
+							{
+								output.autoTabLn("chk = (CheckBox)e.Item.FindControl(\"chk" + GetAlias(column) + "\");");
+								output.autoTabLn("obj." + GetAlias(column) + " = chk.Checked;");							
+							}
+							else
+							{
+								output.autoTabLn("txt = (TextBox)e.Item.FindControl(\"txt" + GetAlias(column) + "\");");
+								output.autoTabLn("obj.s_" + GetAlias(column) + " = txt.Text;");
+							}
+						}
+					}
+				}
+				output.tabLevel = 0;
+%>					
+
+				obj.Save();
+				GridEndEditing();
+			}
+			catch(Exception ex)
+			{
+				base.SetErrorText(ex.Message);
+			}
+		}		
+
+		// "Add" button
+		private void btnAdd_Click(object sender, System.EventArgs e)
+		{
+			try
+			{
+				if(this.TheGrid.EditItemIndex == -1)
+				{
+					this.IsNewRecord = true;
+					this.btnAdd.Visible = false;
+					
+					// We don't let them do this if they haven't even saved the Client yet
+					<% output.autoTabLn(ezObject + " obj = new " + ezObject + "();"); %>
+					obj.AddNew();
+					this.TheGrid.DataSource = obj.DefaultView;
+					this.TheGrid.EditItemIndex = 0;
+					this.TheGrid.CurrentPageIndex = 0;
+					this.TheGrid.DataBind();
+				}
+			}
+			catch(Exception ex)
+			{
+				base.SetErrorText(ex.Message);
+			}
+		}
+		
+		// "Cancel" button
+		private void TheGrid_CancelCommand(object source, System.Web.UI.WebControls.DataGridCommandEventArgs e)
+		{
+			GridEndEditing();
+		}
+		
+		// Sorting via Grid header columns
+		private void TheGrid_SortCommand(object source, System.Web.UI.WebControls.DataGridSortCommandEventArgs e)
+		{
+			if(this.TheGrid.EditItemIndex == -1)
+			{
+				if(this.SortExpression == e.SortExpression)
+				{
+					if(this.SortOrder == "ASC")
+						this.SortOrder = "DESC";
+					else
+						this.SortOrder = "ASC";
+				}
+				this.SortExpression = e.SortExpression;
+				BindGrid(null);	
+			}
+		}
+		
+		// Next/Prev pagin logic
+		private void TheGrid_PageIndexChanged(object source, System.Web.UI.WebControls.DataGridPageChangedEventArgs e)
+		{
+			if(this.TheGrid.EditItemIndex == -1)
+			{
+				this.TheGrid.CurrentPageIndex = e.NewPageIndex;
+				this.PageIndex = e.NewPageIndex;
+				BindGrid(null);
+			}
+		}
+		
+		// Always use ViewState via properties, never use it inline, it's messy that way
+		private bool IsNewRecord
+		{
+			get 
+			{ 
+				object o = this.ViewState["IsNewRecord"];
+				if( o == null) return false;
+
+				return Convert.ToBoolean(o);	
+			}
+
+			set	{ this.ViewState["IsNewRecord"] = value.ToString(); }
+		}
+		
+		private string SortOrder
+		{
+			get { return this.ViewState["SortOrder"] as string;	}
+			set	{ this.ViewState["SortOrder"] = value; }
+		}
+		
+		private string SortExpression
+		{
+			get { return this.ViewState["SortExpression"] as string; }
+			set	{ this.ViewState["SortExpression"] = value; }
+		}
+		
+		private int PageIndex
+		{
+			get { return (int)this.ViewState["PageIndex"]; }
+			set	{ this.ViewState["PageIndex"] = value; }
+		}
+		
+		private string[] GetPrimaryKeyData(DataGridItem item)
+		{
+			Label pk = item.Cells[1].Controls[1] as Label;
+			if(pk != null && pk.Text.Replace("|", "").Length > 0) 
+			{
+				return pk.Text.Split(new char[]{'|'});
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+		private void PopulatePrimaryKeys(<%= ezObject %> obj, string[] keys)
+		{
+<%		
+			output.tabLevel = 3;
+			index = 0;
+			foreach (IColumn column in table.PrimaryKeys)
+			{
+				if(column.LanguageType == "Guid")
+				{
+					output.autoTabLn("obj.Where." + GetAlias(column) + ".Value = new Guid(keys[" + index + "]);");
+				}
+				else
+				{
+					output.autoTabLn("obj.Where." + GetAlias(column) + ".Value = keys[" + index + "];");				
+				}
+				index++;
+			}
+%>		}	
+
+
+<% 
+        output.tabLevel = 2;
+		index = 1;
+		foreach (string col in columns)
+		{
+			if(this.relations.ContainsKey(col))
+			{
+				string[] mapping = relations[col].ToString().Split(new char[] {'.'});
+				
+				string relatedTableAlias;
+				string relatedTable = relatedTableAlias = mapping[0];
+				if(database.Tables[relatedTable] != null)
+				{
+					relatedTableAlias = database.Tables[relatedTable].Alias;
+				}
+				string displayColumn = mapping[1];
+
+				IColumn fk = table.Columns[col];
+				
+				if(this.view == null)
+				{
+					// Simple Table mapping ...
+					ITable objRelatedTable = database.Tables[relatedTable];	
+					IColumn pk = objRelatedTable.PrimaryKeys[0];				
+					
+					output.autoTabLn("private void lst" + GetAlias(fk) + index++ + "Load(DropDownList cbox)");
+					output.autoTabLn("{");
+					output.tabLevel++;
+					
+					output.autoTabLn(relatedTableAlias + " obj = new " + relatedTableAlias + "();");
+					output.autoTabLn("obj.Query.AddResultColumn(" + relatedTableAlias + "Schema." + pk.Name + ");");						
+					output.autoTabLn("obj.Query.AddResultColumn(" + relatedTableAlias + "Schema." + displayColumn + ");");
+					output.autoTabLn("obj.Query.Distinct = true;");					
+					output.autoTabLn("obj.Query.Load();");
+					output.autoTabLn("");						
+					output.autoTabLn("cbox.DataSource = obj.DefaultView;");
+					output.autoTabLn("cbox.DataValueField = " + relatedTableAlias + "Schema." + pk.Name + ".FieldName;");						
+					output.autoTabLn("cbox.DataTextField = " + relatedTableAlias + "Schema." + displayColumn + ".FieldName;");				
+					output.autoTabLn("");						
+					output.autoTabLn("cbox.DataBind();");
+					
+					if (fk.IsNullable)
+					{
+						output.autoTabLn("cbox.Items.Insert(0, new ListItem(\"<none>\", string.Empty));");
+					}
+					
+					output.tabLevel--;
+					output.autoTabLn("}");
+					output.autoTabLn("");
+				}
+				else
+				{
+					// View mapping
+					output.autoTabLn("private void lst" + GetAlias(fk) + index++ + "Load(DropDownList cbox)");
+					output.autoTabLn("{");
+					output.tabLevel++;
+					
+					output.autoTabLn(this.table.Alias + " obj = new " + TrimSpaces(this.table.Alias) + "();");
+					output.autoTabLn("obj.QuerySource = \"" + relatedTable + "\";");		
+					output.autoTabLn("obj.Query.AddResultColumn(" + TrimSpaces(this.table.Alias) + "Schema." + TrimSpaces(displayColumn) + ");");
+					output.autoTabLn("obj.Query.AddResultColumn(\"" + col + "\");");
+					output.autoTabLn("obj.Query.Distinct = true;");						
+					output.autoTabLn("obj.Query.Load();");
+					output.autoTabLn("");					
+					output.autoTabLn("cbox.DataSource = obj.DefaultView;");
+					output.autoTabLn("cbox.DataValueField = " + TrimSpaces(this.table.Alias) + "Schema." + TrimSpaces(displayColumn) + ".FieldName;");
+					output.autoTabLn("cbox.DataTextField = \"" + col + "\";");						
+					output.autoTabLn("");						
+					output.autoTabLn("cbox.DataBind();");
+					output.tabLevel--;
+					output.autoTabLn("}");
+					output.autoTabLn("");				
+				}
+			}
+		}
+%>
+		private void TheGrid_ItemDataBound(object sender, System.Web.UI.WebControls.DataGridItemEventArgs e)
+		{
+			if(e.Item.ItemType == ListItemType.EditItem)
+			{
+				for(int i = 1; i < e.Item.Cells.Count; i++)
+				{
+					TableCell cell = e.Item.Cells[i];
+
+					foreach(Control c in cell.Controls)
+					{
+						DropDownList list = c as DropDownList;
+
+						if(list != null)
+						{
+							switch(c.ID)
+							{
+<% 								output.tabLevel = 8;
+								index = 1;
+
+								foreach( string col in columns ) 
+								{
+									IColumn column = table.Columns[col];
+									
+									if(this.relations.ContainsKey(col))
+									{
+										string[] mapping = this.relations[col].ToString().Split(new char[] {'.'});
+											
+										string relatedTableAlias;
+										string relatedTable = relatedTableAlias = mapping[0];
+										if(database.Tables[relatedTable] != null)
+										{
+											relatedTableAlias = database.Tables[relatedTable].Alias;
+										}								
+										string displayColumn = mapping[1];
+										
+										output.autoTabLn("case \"lst" + GetAlias(column) + index + "\":");
+										output.autoTabLn("");
+										output.tabLevel++;
+										output.autoTabLn("lst" + GetAlias(column) + index++ + "Load(list);");
+										output.autoTabLn("break;");
+										output.autoTabLn("");									
+										output.tabLevel--;		
+									}									
+								}
+%>								default:
+									break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}		
+<%		
+		output.save(filename, false);
+		buffer = buffer + output.text;
+		output.clear();
+	}
+	
+	// check if column has been selected via UI
+	private bool IsInColumns(IColumn c)
+	{
+		foreach (string columnName in columns)
+		{
+			if (columnName == c.Name) return true;
+		}
+		return false;
+	}
+	// removes all spaces
+	private string TrimSpaces(string input)
+	{
+		return System.Text.RegularExpressions.Regex.Replace(input, @"\s+","");
+	}
+	
+	private string GetName(IColumn objColumn)
+	{
+		string name = objColumn.Name;
+		return name.Substring(0,1).ToUpper() + name.Substring(1,(name.Length) -1);
+	}	
+	
+	private string GetAlias(IColumn objColumn)
+	{
+		string name = objColumn.Alias;
+		return name;
+	}	
+}
+%>
+##|BODY_END

@@ -1,0 +1,6 @@
+<configuration>
+  <configSections>
+		<section name="dataConfiguration" type="Microsoft.Practices.EnterpriseLibrary.Data.Configuration.DatabaseSettings, Microsoft.Practices.EnterpriseLibrary.Data" />
+  </configSections>
+  <dataConfiguration defaultDatabase="" />
+</configuration>

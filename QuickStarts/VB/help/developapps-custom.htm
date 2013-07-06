@@ -1,0 +1,105 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Calling a custom stored procedure</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Calling a custom stored procedure</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+	<p>One scenario for developers is to add EasyObjects.NET to an existing 
+	application. The existing application may include existing stored procedures 
+	that contain business logic. EasyObjects.NET is designed to help this 
+	process, by giving developers methods to call any custom stored procedures.</p>
+	<h2>Typical Goals</h2>
+	<p>In this scenario, you want to call a custom stored procedure in the 
+	database.</p>
+	<p>These goals can be summarized as follows: </p>
+	<ul>
+		<li>You want to retrieve data from a custom stored procedure.    
+		</li>
+		<li>You may optionally pass IN parameters from the business object to 
+		the procedure.    
+		</li>
+		<li>You may optionally load the business object with the results of the 
+		procedure.</li>
+		<li>You may optionally process any OUT parameters from the procedure.</li>
+	</ul>
+	<h2>Solution</h2>
+	<p>Use the <b>LoadFromSql</b> method provided by the <b>
+	EasyObject</b> class to call a stored procedure and load the business object 
+	with the results. Use the <b>LoadFromSqlNoExec</b> method to call the stored 
+	procedure without affecting the contents of the business class.</p>
+	<h2>Using LoadFromSql</h2>
+	<p>The following code shows how to use the <b>LoadFromSql</b> method.</p>
+	<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+public virtual bool TenMostExpensiveProducts ()
+{
+    // Create the Database object, using the default database service. The
+    // default database service is determined through configuration.
+    Database db = GetDatabase();
+
+    string sqlCommand = this.SchemaStoredProcedureWithSeparator + &quot;[Ten Most Expensive Products]&quot;;
+    DBCommandWrapper dbCommandWrapper = db.GetStoredProcCommandWrapper(sqlCommand);
+
+    // Add procedure parameters
+
+    return base.LoadFromSql(dbCommandWrapper);
+}
+
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Public Overridable Function TenMostExpensiveProducts() As Boolean
+
+    ' Create the Database object, using the default database service. The
+    ' default database service is determined through configuration.
+    Dim db As Database = GetDatabase() 
+
+    Dim sqlCommand As String = Me.SchemaStoredProcedureWithSeparator + &quot;Ten Most Expensive Products&quot; 
+    Dim dbCommandWrapper As DBCommandWrapper = db.GetStoredProcCommandWrapper(sqlCommand) 
+
+    ' Add procedure parameters
+
+    Return MyBase.LoadFromSql(dbCommandWrapper)
+
+End Function
+</pre>
+	<h2>Usage Notes</h2>
+	<p>The <b>LoadFromSql</b> method returns a Boolean value indicating whether 
+	any rows were returned from the stored procedure. You can substitute inline 
+	SQL instead of calling a stored procedure by calling <b>
+	GetSqlStringCommandWrapper</b> and removing the <b>
+	SchemaStoredProcedureWithSeparator</b> call.</p>
+	<!-- See Also -->
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps-scenarios.htm">
+	Key Scenarios</a>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

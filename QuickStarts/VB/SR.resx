@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xs:schema id="root" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xs:element name="root" msdata:IsDataSet="true">
+      <xs:complexType>
+        <xs:choice maxOccurs="unbounded">
+          <xs:element name="data">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xs:string" minOccurs="0" msdata:Ordinal="1" />
+                <xs:element name="comment" type="xs:string" minOccurs="0" msdata:Ordinal="2" />
+              </xs:sequence>
+              <xs:attribute name="name" type="xs:string" />
+              <xs:attribute name="type" type="xs:string" />
+              <xs:attribute name="mimetype" type="xs:string" />
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="resheader">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="value" type="xs:string" minOccurs="0" msdata:Ordinal="1" />
+              </xs:sequence>
+              <xs:attribute name="name" type="xs:string" use="required" />
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
+  <data name="SimpleMessage">
+    <value>This is a simple test message.</value>
+    <comment> For localizers and UE (These comments will be seen in LocStudio) Test message used just to demonstrate string resource tool</comment>
+  </data>
+  <data name="FileOpenError">
+    <value>Unable to open {0} : {1}</value>
+    <comment> Error message displayed when the app can't open a file.
+ Parameters: 0 - filename (string), 1 - description (string) </comment>
+  </data>
+  <data name="ProgressMessage">
+    <value>Completed {0} iterations.</value>
+    <comment> Status update message to display progress, this will typically be invoked every 100 iterations or so....
+ Parameters: 0 - iterationCount (int) </comment>
+  </data>
+  <data name="GeneralExceptionMessage">
+    <value>There are some problems while trying to use the Data Access Quick Start, please check the following error messages: 
+{0}
+</value>
+    <comment>.
+ Parameters: 0 - message (string) </comment>
+  </data>
+  <data name="DbRequirementsMessage">
+    <value>This test requires database modifications. Please make sure the database has been initialized using the SetUpQuickStartsDB.bat database script, or from the Install Quickstart option on the Start menu.</value>
+  </data>
+  <data name="ApplicationErrorMessage">
+    <value>Application Error</value>
+  </data>
+  <data name="AffectedRowsMessage">
+    <value>{0} rows were affected</value>
+    <comment>.
+ Parameters: 0 - rows (int) </comment>
+  </data>
+  <data name="TransferCompletedMessage">
+    <value>Transfer Completed</value>
+  </data>
+  <data name="TransferFailedMessage">
+    <value>Transfer Failed</value>
+  </data>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter</value>
+  </resheader>
+</root>

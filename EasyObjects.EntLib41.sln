@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyObjects.EntLib41", "EasyObjects\EasyObjects.EntLib41.csproj", "{F39AF67B-05A4-47AC-99FA-9BBD6EFB3E9E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyObjects.EntLib41.MSAccess", "EasyObjects.MSAccess\EasyObjects.EntLib41.MSAccess.csproj", "{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyObjects.WCF", "EasyObjects.WCF\EasyObjects.WCF.csproj", "{5E3D6DD6-77FE-4349-937B-5B26F8140780}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F39AF67B-05A4-47AC-99FA-9BBD6EFB3E9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F39AF67B-05A4-47AC-99FA-9BBD6EFB3E9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F39AF67B-05A4-47AC-99FA-9BBD6EFB3E9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F39AF67B-05A4-47AC-99FA-9BBD6EFB3E9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E3D6DD6-77FE-4349-937B-5B26F8140780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E3D6DD6-77FE-4349-937B-5B26F8140780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E3D6DD6-77FE-4349-937B-5B26F8140780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E3D6DD6-77FE-4349-937B-5B26F8140780}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

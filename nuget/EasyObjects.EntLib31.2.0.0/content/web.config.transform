@@ -1,0 +1,12 @@
+<configuration>
+  <configSections>
+    <section name="dynamicQueryConfiguration" type="NCI.EasyObjects.Configuration.DynamicQuerySettings, NCI.EasyObjects.Net20" />
+  </configSections>
+  <dynamicQueryConfiguration defaultProvider="SQL Server 2005">
+    <dynamicQueryProviders>
+      <add name="SQL Server" type="NCI.EasyObjects.DynamicQueryProvider.SqlServerDynamicQuery, NCI.EasyObjects.Net20" />
+      <add name="SQL Server 2005" type="NCI.EasyObjects.DynamicQueryProvider.Sql2005DynamicQuery, NCI.EasyObjects.Net20" />
+      <add name="Oracle" type="NCI.EasyObjects.DynamicQueryProvider.OracleDynamicQuery, NCI.EasyObjects.Net20" />
+    </dynamicQueryProviders>
+  </dynamicQueryConfiguration>
+</configuration>

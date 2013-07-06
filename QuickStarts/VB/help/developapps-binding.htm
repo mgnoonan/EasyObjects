@@ -1,0 +1,144 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Databinding and Looping</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Databinding and Looping</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+	<p>A very common task for developers is to bind query results into a 
+	databound control, such as a <b>DropDownList</b> or <b>ListBox</b>. For example, 
+	an application that needs to load product detail data based on a user 
+	selection from a DropDownList. </p>
+	<p>Some situations do not lend themselves to databinding, in which case the 
+	developer may have to loop through all of the rows in the EasyObject 
+	business entity. For example, the developer may need to build a 
+	comma-separated list of ID fields. </p>
+	<h2>Typical Goals</h2>
+	<p>In this scenario, you want to query a database table or view load the EasyObject business object with the results, 
+	then bind the EasyObject to the databound control or loop through the 
+	results.</p>
+	<p>These goals can be summarized as follows: </p>
+	<ul>
+		<li>You want to retrieve data from a database table or view.   
+		</li>
+		<li>You want to bind the results to a databound control or loop through 
+		the results manually.    
+		</li>
+	</ul>
+	<h2>Solution</h2>
+	<p>For databinding, use the <b>DefaultView</b> property provided by the <b>
+	EasyObject</b> class. 
+	For manual looping, use the <b>MoveNext </b>method. See the sample code below for examples.</p>
+	<h2>Using DefaultView</h2>
+	<p>The following code shows how to use the <b>DefaultView</b> property.</p>
+	<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Employees emp = new Employees();
+
+// Limit the columns returned by the SELECT query
+emp.Query.AddResultColumn(EmployeesSchema.EmployeeID);
+emp.Query.AddResultColumn(EmployeesSchema.LastName);
+
+// Add an ORDER BY clause
+emp.Query.AddOrderBy(EmployeesSchema.LastName);
+
+emp.Query.Load();
+
+// Bind the EasyObject's DefaultView to the DropDownList for display
+this.lstEmployees.DataSource = emp.DefaultView;
+this.lstEmployees.DataTextField = EmployeesSchema.LastName.FieldName;
+this.lstEmployees.DataValueField = EmployeesSchema.EmployeeID.FieldName;
+this.lstEmployees.DataBind();
+
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Dim emp As Employees = New Employees
+
+' Limit the columns returned by the SELECT query
+emp.Query.AddResultColumn(EmployeesSchema.EmployeeID)
+emp.Query.AddResultColumn(EmployeesSchema.LastName)
+
+' Add an ORDER BY clause
+emp.Query.AddOrderBy(EmployeesSchema.LastName)
+
+emp.Query.Load()
+
+' Bind the EasyObject's DefaultView to the DropDownList for display
+Me.lstEmployees.DataSource = emp.DefaultView
+Me.lstEmployees.DataTextField = EmployeesSchema.LastName.FieldName
+Me.lstEmployees.DataValueField = EmployeesSchema.EmployeeID.FieldName
+Me.lstEmployees.DataBind()
+</pre>
+	<h2>Using MoveNext</h2>
+	<p>The following code shows how to use the <b>MoveNext</b> method.</p>
+	<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Employees emp = new Employees();
+StringBuilder idList = new StringBuilder();
+
+// Limit the columns returned by the SELECT query
+emp.Query.AddResultColumn(EmployeesSchema.EmployeeID);
+
+emp.Query.Load();
+
+// Loop through the results, building a comma separated list of IDs
+do
+{
+    idList.AppendFormat(&quot;{0},&quot;, emp.s_EmployeeID);
+} while (emp.MoveNext());
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Dim emp As Employees = New Employees
+Dim idList As StringBuilder = New StringBuilder
+
+' Limit the columns returned by the SELECT query
+emp.Query.AddResultColumn(EmployeesSchema.EmployeeID)
+
+emp.Query.Load()
+
+' Loop through the results, building a comma separated list of IDs
+Do
+    idList.AppendFormat(&quot;{0},&quot;, emp.s_EmployeeID)
+Loop While emp.MoveNext()
+</pre>
+	<h2>Usage Notes</h2>
+	<p>The <b>MoveNext</b> method returns a Boolean value indicating whether 
+	another record is available. If the last record was reached, it will return 
+	false.</p>
+	<!-- See Also -->
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps-scenarios.htm">
+	Key Scenarios</a>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

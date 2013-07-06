@@ -1,0 +1,7 @@
+<configuration>
+  <dynamicQueryConfiguration>
+    <dynamicQueryProviders>
+      <add name="MSAccess" type="NCI.EasyObjects.DynamicQueryProvider.MSAccessDynamicQuery, NCI.EasyObjects.MSAccess.Net20" />
+    </dynamicQueryProviders>
+  </dynamicQueryConfiguration>
+</configuration>

@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCI.EasyObjects.Firebird", "NCI.EasyObjects.Firebird.csproj", "{3233D97D-F581-41CB-8BBA-90D330D3E0B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyObjectsQuickStart", "..\..\QuickStarts\CS\EasyObjectsQuickStart.csproj", "{C9E6022C-9FB3-4618-80E2-0F826581A255}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "..\..\..\..\Program Files\Microsoft Enterprise Library January 2006\src\Data\Data.csproj", "{D349B6D8-992F-443F-BB57-57E50DD98794}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3233D97D-F581-41CB-8BBA-90D330D3E0B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3233D97D-F581-41CB-8BBA-90D330D3E0B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3233D97D-F581-41CB-8BBA-90D330D3E0B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3233D97D-F581-41CB-8BBA-90D330D3E0B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9E6022C-9FB3-4618-80E2-0F826581A255}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9E6022C-9FB3-4618-80E2-0F826581A255}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9E6022C-9FB3-4618-80E2-0F826581A255}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9E6022C-9FB3-4618-80E2-0F826581A255}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D349B6D8-992F-443F-BB57-57E50DD98794}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D349B6D8-992F-443F-BB57-57E50DD98794}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D349B6D8-992F-443F-BB57-57E50DD98794}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D349B6D8-992F-443F-BB57-57E50DD98794}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

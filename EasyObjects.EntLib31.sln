@@ -1,0 +1,45 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyObjects.EntLib31", "EasyObjects\EasyObjects.EntLib31.csproj", "{EA5A68DB-0F56-49B6-900D-586097FF6372}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyObjects.EntLib31.MSAccess", "EasyObjects.MSAccess\EasyObjects.EntLib31.MSAccess.csproj", "{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		DebugLongRunningTests|Any CPU = DebugLongRunningTests|Any CPU
+		DebugUnitTests|Any CPU = DebugUnitTests|Any CPU
+		Release|Any CPU = Release|Any CPU
+		ReleaseFinal|Any CPU = ReleaseFinal|Any CPU
+		ReleaseUnitTests|Any CPU = ReleaseUnitTests|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.DebugLongRunningTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.DebugLongRunningTests|Any CPU.Build.0 = Debug|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.DebugUnitTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.DebugUnitTests|Any CPU.Build.0 = Debug|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.ReleaseFinal|Any CPU.ActiveCfg = Release|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.ReleaseFinal|Any CPU.Build.0 = Release|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.ReleaseUnitTests|Any CPU.ActiveCfg = Release|Any CPU
+		{EA5A68DB-0F56-49B6-900D-586097FF6372}.ReleaseUnitTests|Any CPU.Build.0 = Release|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.DebugLongRunningTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.DebugLongRunningTests|Any CPU.Build.0 = Debug|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.DebugUnitTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.DebugUnitTests|Any CPU.Build.0 = Debug|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.ReleaseFinal|Any CPU.ActiveCfg = Release|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.ReleaseFinal|Any CPU.Build.0 = Release|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.ReleaseUnitTests|Any CPU.ActiveCfg = Release|Any CPU
+		{B80D8A24-CBA2-4922-B5F9-3B1D07F451C8}.ReleaseUnitTests|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

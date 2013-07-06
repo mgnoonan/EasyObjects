@@ -1,0 +1,1415 @@
+﻿##|TYPE Template
+##|UNIQUEID a2ba4a55-b939-47b6-a16e-09f68b647d5a
+##|TITLE EasyObjects 2 C# Business Entity
+##|NAMESPACE EasyObject.C#
+##|SOURCE_TYPE Source
+##|OUTPUT_LANGUAGE C#
+##|COMMENTS_BEGIN
+Generate an EasyObject abstract class from a table.
+##|COMMENTS_END
+##|GUI_ENGINE Microsoft Script
+##|GUI_LANGUAGE VBScript
+##|GUI_BEGIN
+Dim cmbDatabases
+Dim lstTables
+Dim chk
+Dim cmbFormat
+Dim txtFormat
+Dim txtPrefix
+
+Sub setup()
+
+	If context.Objects.ContainsKey("DnpUtils") Then
+		DnpUtils.ReadInputFromCache(context)
+	End if
+
+	If Not input.Contains("lstTables") Or Not input.Contains("txtPath") Then
+
+		ui.Title = "Generate C# EasyObject from a Table."
+		ui.Width  = 330
+		ui.Height = 640
+
+		' Grab default output path
+		Dim sOutputPath
+		sOutputPath = ""
+		If input.Contains("defaultOutputPath") Then 
+			sOutputPath = input.Item("defaultOutputPath")
+		End If
+
+		ui.AddLabel "lblPath", "Output file path: ",  "Select the output path."
+		ui.AddTextBox "txtPath", sOutputPath, "Select the Output Path."
+		ui.AddFilePicker "btnPath", "Select Path", "Select the Output Path.", "txtPath", true
+		
+		ui.AddLabel "lblNamespace", "Namespace: ",  "Provide your objects namespace."
+		ui.AddTextBox "txtNamespace", "Your.Namespace", "Provide your objects namespace."			
+
+		' List Databases in a ComboBox
+		ui.AddLabel "lblDatabases", "Select a database:", "Select a database in the dropdown below."
+		Set cmbDatabases = ui.AddComboBox("cmbDatabase", "Select a database.")
+
+		' List Tables in a listbox
+		ui.AddLabel "lblTables", "Select tables:", "Select tables from the listbox below."
+		Set lstTables = ui.AddListBox ("lstTables", "Select tables:")
+		'lstTables.IsMultiSelect = false
+		lstTables.Height = 120
+		
+		' Prefix
+		ui.AddLabel "lblPrefix", "Procedure prefix:", "Enter a procedure prefix."
+		Set txtPrefix = ui.AddTextBox("txtPrefix", "", "Enter the procedure prefix")
+		
+		' List proc formats
+		ui.AddLabel "lblFormat", "Select procedure format:", "Select a procedure format from the listbox below."
+		Set cmbFormat = ui.AddComboBox("cmbFormat", "Select a procedure format.")
+		cmbFormat.AttachEvent "onchange", "cmbFormat_onchange"
+		Set txtFormat = ui.AddTextBox("txtFormat", "", "Enter the procedure format")
+		txtFormat.Enabled = false
+		setupFormatDropdown cmbFormat
+		
+		Set prefix = ui.AddCheckBox("prefix", "Prefix class with underscore?", true, "If checked, the file on disk will begin with an underscore")
+		Set wcf = ui.AddCheckBox("chkWcf", "Add WCF support?", true, "If checked, the generated class will include WCF support")
+		
+		If MyMeta.DriverString = "FIREBIRD" Then
+			Set chk = ui.AddCheckBox("ckDialect3", "DIALECT 3", false, "If checked, the stored procedure will use dialect 3 syntax")
+			chk.forecolor = "red"
+		End If
+
+		' Attach the onchange event to the cmbDatabases control.
+		setupDatabaseDropdown cmbDatabases
+		
+		ui.ShowGUI = true
+	Else 
+		ui.ShowGUI = false
+	End if
+
+End Sub
+
+Sub setupDatabaseDropdown(cmbDatabases)
+	cmbDatabases.BindData MyMeta.Databases
+	
+	If Not MyMeta.DefaultDatabase Is Nothing Then
+		cmbDatabases.SelectedValue = MyMeta.DefaultDatabase.Name
+		bindTables cmbDatabases.SelectedValue
+	End If
+	
+	cmbDatabases.AttachEvent "onchange", "cmbDatabases_onchange"
+End Sub
+
+Sub bindTables(sDatabase)
+	Set db = MyMeta.Databases(sDatabase)
+	lstTables.BindData(db.Tables)
+End Sub
+
+' Event Handler
+Sub cmbDatabases_onchange(control)
+	Set cmbDatabases = ui.item("cmbDatabase")
+	bindTables cmbDatabases.SelectedText
+End Sub
+
+Sub setupFormatDropdown(cmbFormat)
+	cmbFormat.Add "daab", "ASP.NET Starter Kits"
+	cmbFormat.Add "doodads", "dOOdads"
+	cmbFormat.Add "custom", "Custom"
+	cmbFormat.SelectedValue = "daab"
+	cmbFormat_onchange(cmbFormat)
+End Sub
+
+Sub cmbFormat_onchange(control)
+
+	txtFormat.Enabled = False
+
+	Select Case cmbFormat.SelectedValue
+		Case "daab"
+			txtFormat.Text = "{prefix}{verb}{table}"
+			txtPrefix.Text = "daab_"
+		Case "doodads"
+			txtFormat.Text = "{prefix}{table}{verb}"
+			txtPrefix.Text = "proc_"
+		Case "custom"
+			txtFormat.Enabled = True
+	End Select
+	
+End Sub
+##|GUI_END
+##|BODY_MODE Markup
+##|BODY_ENGINE Microsoft Script
+##|BODY_LANGUAGE VBScript
+##|BODY_TAG_START <%
+##|BODY_TAG_END %>
+##|BODY_BEGIN
+<%
+'------------------------------------------------------------------------------
+' Copyright 2005 by Noonan Consulting Inc.
+' All Rights Reserved 
+'
+' Permission to use, copy, modify, and distribute this software and its 
+' documentation for any purpose and without fee is hereby granted, 
+' provided that the above copyright notice appear in all copies and that 
+' both that copyright notice and this permission notice appear in 
+' supporting documentation. 
+'
+' NCI DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS 
+' SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY 
+' AND FITNESS, IN NO EVENT SHALL NCI BE LIABLE FOR ANY 
+' SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES 
+' WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, 
+' WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER 
+' TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE 
+' OR PERFORMANCE OF THIS SOFTWARE. 
+'------------------------------------------------------------------------------
+' CSharp_EasyObject_BusinessEntity.vbgen
+' Last Update : 12/26/2006
+'------------------------------------------------------------------------------
+
+If context.Objects.ContainsKey("DnpUtils") Then
+	DnpUtils.SaveInputToCache(context)
+End if
+
+Dim bFirst
+Dim name
+Dim alias
+Dim objTable
+Dim objColumn
+Dim tableNames
+Dim language
+Dim databaseName
+Dim database
+Dim namespace
+Dim props
+Dim bOtherColumns
+Dim sPrefix
+Dim sFormat
+Dim sStyle
+
+Dim IDbCommand
+Dim IDataParameter
+Dim ParameterPrefix
+
+Dim dialect
+
+dialect = 1
+If input.Item("ckDialect3") Then
+	dialect = 3
+End If
+
+prefix = input.Item("prefix")
+bAddWcf = input.Item("chkWcf")
+
+' Grab the namespace
+namespace = input.Item("txtNamespace")
+
+' Set the Language for our column data types
+MyMeta.Language = "C#"
+
+' Grab the choices the user made in our UI Script (see Interface Code tab)
+Set tableNames = input.Item("lstTables")
+sPrefix = input.Item("txtPrefix")
+sFormat = input.Item("txtFormat")
+sStyle = input.Item("cmbFormat")
+
+databaseName  = input.Item("cmbDatabase")
+Set database = MyMeta.Databases(databaseName)
+
+' Loop through the tables the user selected and generate the business entities
+For intLp = 0 To tableNames.Count - 1
+
+	Set objTable = database.Tables(tablenames.item(intLp))
+	Set props = objTable.Properties
+		
+	tableAlias = TrimSpaces(objTable.Alias)
+	tableName = TrimSpaces(objTable.Name)
+
+	bOtherColumns = (objTable.Columns.Count > objTable.PrimaryKeys.Count)
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' Now we have the table that we desire to build a Business Object From, let us begin.
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%>/*
+'===============================================================================
+'  Generated From - CSharp_EasyObject_BusinessEntity.vbgen
+' 
+'  ** IMPORTANT  ** 
+'  How to Generate your stored procedures:
+' 
+'  SQL      = SQL_DAAB_StoredProcs.vbgen
+'  
+'  This object is 'abstract' which means you need to inherit from it to be able
+'  to instantiate it.  This is very easily done. You can override properties and
+'  methods in your derived class, this allows you to regenerate this class at any
+'  time and not worry about overwriting custom code. 
+'
+'  NEVER EDIT THIS FILE.
+'
+'  public class YourObject :  _YourObject
+'  {
+'
+'  }
+'
+'===============================================================================
+*/
+
+// Generated by MyGeneration Version # (<%= input.Item("__version") %>)
+
+using System;
+using System.Data;
+using System.Data.Common;
+using System.Configuration;
+using System.Collections;
+using System.Collections.Specialized;
+using System.Xml;
+using System.IO;
+<%	If bAddWcf Then
+		output.WriteLn "using System.Xml.Serialization;"
+		output.WriteLn "using System.Runtime.Serialization;"
+		output.WriteLn "using System.Collections.Generic;"
+	End If
+%>
+using Microsoft.Practices.EnterpriseLibrary.Data;
+using NCI.EasyObjects;
+
+namespace <%= TrimSpaces(namespace) %>
+{
+
+	#region Schema
+
+	public class <%= tableAlias %>Schema : NCI.EasyObjects.Schema
+	{
+		private static ArrayList _entries;
+<%		output.tabLevel = 2
+
+		' List all fields as member variables
+		For Each objColumn In objTable.Columns
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			
+			isAutoKey = objColumn.IsAutoKey
+			If props.ContainsKey("SEQ:I:" & objColumn.Name) Then
+				isAutoKey = True
+			End if
+			
+			Select Case LCase(objColumn.LanguageType)
+			Case "string"
+				output.autoTabLn "public static SchemaItem " & alias & " = new SchemaItem(""" & name & """, " & objColumn.DbTargetType & ", SchemaItemJustify.None, " & objColumn.CharacterMaxLength & ", " & ConvertToBoolean(objColumn.IsNullable) & ", " & ConvertToBoolean(objColumn.IsInPrimaryKey) & ", " & ConvertToBoolean(objColumn.IsInForeignKey) & ", " & ConvertToBoolean(objColumn.HasDefault) & ");"
+			Case Else
+				output.autoTabLn "public static SchemaItem " & alias & " = new SchemaItem(""" & name & """, " & objColumn.DbTargetType & ", " & ConvertToBoolean(isAutoKey) & ", " & ConvertToBoolean(objColumn.IsNullable) & ", " & ConvertToBoolean(objColumn.IsComputed) & ", " & ConvertToBoolean(objColumn.IsInPrimaryKey) & ", " & ConvertToBoolean(objColumn.IsInForeignKey) & ", " & ConvertToBoolean(objColumn.HasDefault) & ");"
+			End Select
+		Next
+%>
+		public override ArrayList SchemaEntries
+		{
+			get
+			{
+				if (_entries == null )
+				{
+					_entries = new ArrayList();
+<%	output.tabLevel = 5
+	hasAutoKey = False
+	hasRowID = False
+	'tableAlias = TrimSpaces(objTable.Alias)
+
+	' Load all fields into the ArrayList
+	For Each objColumn In objTable.Columns			
+		alias = GetAlias(objColumn)
+		
+		output.autoTabLn "_entries.Add(" & tableAlias & "Schema." & alias & ");"
+		
+		If objColumn.IsComputed Then
+			output.autoTabLn tableAlias & "Schema." & alias & ".IsComputed = true;"
+		End If
+		
+		hasAutoKey = hasAutoKey Or objColumn.IsAutoKey
+		propName = "SEQ:I:" & objColumn.Name
+		If props.ContainsKey(propName) Then
+			output.autoTabLn tableAlias & "Schema." & alias & ".Properties.Add(""SEQ:I"", """ & props(propName).Value& """);"
+			hasAutoKey = True
+		End if
+		
+		propName = "SEQ:U:" & objColumn.Name
+		If props.ContainsKey(propName) Then
+			output.autoTabLn tableAlias & "Schema." & alias & ".Properties.Add(""SEQ:U"", """ & props(propName).Value& """);"
+			output.autoTabLn tableAlias & "Schema." & alias & ".IsRowID = true;"
+			hasRowID = True
+		End If
+	Next
+%>				}
+				return _entries;
+			}
+		}
+		
+		public static bool HasAutoKey 
+		{
+			get { return <%= ConvertToBoolean(hasAutoKey) %>;	}
+		}
+
+		public static bool HasRowID 
+		{
+			get { return <%= ConvertToBoolean(hasRowID) %>;	}
+		}
+	}
+	#endregion
+
+	public abstract class <%= "_" & tableAlias %> : EasyObject
+	{
+
+		public <%= "_" & tableAlias %>()
+		{
+			<%= tableAlias %>Schema _schema = new <%= tableAlias %>Schema();
+			this.SchemaEntries = _schema.SchemaEntries;
+			<% output.write "this.SchemaGlobal = """ + objTable.Schema + """;" %>
+		}
+		
+		public override void FlushData() 	 
+		{ 	 
+			this._whereClause = null; 	 
+			this._aggregateClause = null; 	 
+			base.FlushData(); 	 
+		}
+			   
+		/// <summary>
+		/// Loads the business object with info from the database, based on the requested primary key.
+		/// </summary>
+<%	output.tabLevel = 2
+	For Each objColumn in objTable.PrimaryKeys
+		output.autoTabLn "/// <param name=""" & GetAlias(objColumn) & """>" & objColumn.Description & "</param>"
+	Next 
+%>		/// <returns>A Boolean indicating success or failure of the query</returns>
+		public bool LoadByPrimaryKey(<%
+			bFirst = true
+			For Each objColumn in objTable.PrimaryKeys
+				If Not bFirst Then
+					output.write ", "
+				End If
+	
+				output.write objColumn.LanguageType & " " & GetAlias(objColumn)
+	
+				bFirst = false
+			Next 
+		%>)
+		{
+			switch(this.DefaultCommandType)
+			{
+				case CommandType.StoredProcedure:
+					ListDictionary parameters = new ListDictionary();
+
+					// Add in parameters
+<%		output.tabLevel = 5
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetName(objColumn)
+			alias = GetAlias(objColumn)
+			output.autoTabLn "parameters.Add(" & tableAlias & "Schema." & alias & ".FieldName, " & alias & ");"
+		Next
+%>
+					return base.LoadFromSql(this.SchemaStoredProcedureWithSeparator + "<%= CreateProcedureName(objTable, "K") %>", parameters, CommandType.StoredProcedure);
+
+				case CommandType.Text:
+					this.Query.ClearAll();
+					this.Where.WhereClauseReset();
+<%		output.tabLevel = 5
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetName(objColumn)
+			alias = GetAlias(objColumn)
+			output.autoTabLn "this.Where." & alias & ".Value = " & alias & ";"
+		Next
+%>					return this.Query.Load();
+
+				default:
+					throw new ArgumentException("Invalid CommandType", "commandType");
+			}
+		}
+	
+		/// <summary>
+		/// Loads all records from the table.
+		/// </summary>
+		/// <returns>A Boolean indicating success or failure of the query</returns>
+		public bool LoadAll()
+		{
+			switch(this.DefaultCommandType)
+			{
+				case CommandType.StoredProcedure:
+					return base.LoadFromSql(this.SchemaStoredProcedureWithSeparator + "<%= CreateProcedureName(objTable, "L") %>", null, CommandType.StoredProcedure);
+
+				case CommandType.Text:
+					this.Query.ClearAll();
+					this.Where.WhereClauseReset();
+					return this.Query.Load();
+
+				default:
+					throw new ArgumentException("Invalid CommandType", "commandType");
+			}
+		}
+
+		/// <summary>
+		/// Adds a new record to the internal table.
+		/// </summary>
+		public override void AddNew()
+		{
+			base.AddNew();
+			this.ApplyDefaults();
+		}
+
+		/// <summary>
+		/// Apply any default values to columns
+		/// </summary>
+		protected override void ApplyDefaults()
+		{
+<%		output.tabLevel = 3
+		For Each objColumn in objTable.Columns
+			alias = GetAlias(objColumn)
+			default = Trim(Replace(Replace(objColumn.Default, "(", ""), ")", ""))
+			default = Replace(default, vbCrLf, " ")
+			Select Case LCase(default)
+				Case "newid", "genguid"
+					output.autoTabLn "this." & alias & " = Guid.NewGuid();"
+				Case "getdate", "sysdate"
+					output.autoTabLn "this." & alias & " = DateTime.Now;"
+				Case Else
+					If default > "" Then
+						If IsNumeric(default) Then
+							If objColumn.LanguageType = "bool" Then
+								output.autoTabLn "this." & alias & " = " & ConvertToBoolean(default) & ";"
+							Else
+								output.autoTabLn "this." & alias & " = " & default & ";"
+							End If
+						Else
+							If LCase(objColumn.LanguageType) <> "string" Then
+								output.Write "//"
+							End If
+							default = Replace(default, "'", "")
+							output.autoTabLn "this." & alias & " = """ & default & """;"
+						End If
+					End If
+			End Select
+		Next 
+%>		}
+
+		protected override DbCommand GetInsertCommand(CommandType commandType)
+		{	
+			DbCommand dbCommand;
+
+			// Create the Database object, using the default database service. The
+			// default database service is determined through configuration.
+			Database db = GetDatabase();
+
+			switch(commandType)
+			{
+				case CommandType.StoredProcedure:
+					string sqlCommand = this.SchemaStoredProcedureWithSeparator + "<%= CreateProcedureName(objTable, "I") %>";
+					dbCommand = db.GetStoredProcCommand(sqlCommand);
+
+<%		output.tabLevel = 5
+		For Each objColumn in objTable.PrimaryKeys
+			
+			isAutoKey = objColumn.IsAutoKey
+			If props.ContainsKey("SEQ:I:" & objColumn.Name) Then
+				isAutoKey = True
+			End if
+
+			If isAutoKey Then
+				name = GetActualName(objColumn)
+				alias = GetAlias(objColumn)
+				output.autoTabLn "db.AddParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", " & objColumn.CharacterMaxLength & ", ParameterDirection.Output, true, 0, 0, """ & name & """, DataRowVersion.Default, Convert.DBNull);"
+			End If
+		Next
+%>					CreateParameters(db, dbCommand);
+					
+					return dbCommand;
+
+				case CommandType.Text:
+					this.Query.ClearAll();
+					this.Where.WhereClauseReset();
+					foreach(SchemaItem item in this.SchemaEntries)
+					{
+						if (!item.IsComputed)
+						{
+							if ((item.IsAutoKey && this.IdentityInsert) || !item.IsAutoKey)
+							{
+								this.Query.AddInsertColumn(item);
+							}
+						}
+					}
+					dbCommand = this.Query.GetInsertCommandWrapper();
+
+					dbCommand.Parameters.Clear();
+					if (this.IdentityInsert)
+					{
+<%		output.tabLevel = 6
+		For Each objColumn in objTable.PrimaryKeys
+						
+			isAutoKey = objColumn.IsAutoKey
+			If props.ContainsKey("SEQ:I:" & objColumn.Name) Then
+				isAutoKey = True
+			End if
+
+			If isAutoKey Then
+				name = objColumn.Name
+				alias = GetAlias(objColumn)
+				output.autoTabLn "db.AddInParameter(dbCommand, """ & alias & """, " & objColumn.DbTargetType & ", """ & name & """, DataRowVersion.Default);"
+			End If
+		Next
+%>					}
+					else
+					{
+<%		output.tabLevel = 6
+		For Each objColumn in objTable.PrimaryKeys
+			
+			isAutoKey = objColumn.IsAutoKey
+			inputOutput = "Output"
+			If props.ContainsKey("SEQ:I:" & objColumn.Name) Then
+				isAutoKey = True
+				inputOutput = "InputOutput"
+			End if
+
+			If isAutoKey Then
+				name = GetActualName(objColumn)
+				alias = GetAlias(objColumn)
+				output.autoTabLn "db.AddParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", " & objColumn.CharacterMaxLength & ", ParameterDirection." & inputOutput & ", true, 0, 0, """ & name & """, DataRowVersion.Default, Convert.DBNull);"
+			End If
+		Next
+%>					}
+					CreateParameters(db, dbCommand);
+
+					return dbCommand;
+
+				default:
+					throw new ArgumentException("Invalid CommandType", "commandType");
+			}
+		}
+
+		protected override DbCommand GetUpdateCommand(CommandType commandType)
+		{
+            DbCommand dbCommand;
+
+			// Create the Database object, using the default database service. The
+			// default database service is determined through configuration.
+			Database db = GetDatabase();
+
+			switch(commandType)
+			{
+				case CommandType.StoredProcedure:
+					string sqlCommand = this.SchemaStoredProcedureWithSeparator + "<%= CreateProcedureName(objTable, "U") %>";
+					dbCommand = db.GetStoredProcCommand(sqlCommand);
+
+<%		output.tabLevel = 5
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			
+			isAutoKey = objColumn.IsAutoKey
+			If props.ContainsKey("SEQ:I:" & objColumn.Name) Then
+				isAutoKey = True
+			End if
+			
+			If isAutoKey Then
+				output.autoTabLn "db.AddInParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", """ & name & """, DataRowVersion.Current);"
+			End If
+		Next
+%>					CreateParameters(db, dbCommand);
+					
+					return dbCommand;
+
+				case CommandType.Text:
+					this.Query.ClearAll();
+					foreach(SchemaItem item in this.SchemaEntries)
+					{
+						if (!(item.IsAutoKey || item.IsComputed))
+						{
+							this.Query.AddUpdateColumn(item);
+						}
+					}
+
+					this.Where.WhereClauseReset();
+<%		output.tabLevel = 5
+		For Each objColumn in objTable.Columns
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			
+			isRowID = False
+			If props.ContainsKey("SEQ:U:" & objColumn.Name) Then
+				isRowID = True
+			End if
+
+			If objColumn.IsInPrimaryKey Or objColumn.DataTypeName = "timestamp" Or isRowID Then
+				output.autoTabLn "this.Where." & alias & ".Operator = WhereParameter.Operand.Equal;"
+			End If
+		Next
+%>					dbCommand = this.Query.GetUpdateCommandWrapper();
+
+					dbCommand.Parameters.Clear();
+					CreateParameters(db, dbCommand);
+<%		output.tabLevel = 5
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			
+			isAutoKey = objColumn.IsAutoKey
+			If props.ContainsKey("SEQ:I:" & objColumn.Name) Then
+				isAutoKey = True
+			End if
+			
+			If isAutoKey Then
+				output.autoTabLn "db.AddInParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", """ & name & """, DataRowVersion.Current);"
+			End If
+		Next
+%>					
+					return dbCommand;
+
+				default:
+					throw new ArgumentException("Invalid CommandType", "commandType");
+			}
+		}
+
+		protected override DbCommand GetDeleteCommand(CommandType commandType)
+		{
+            DbCommand dbCommand;
+
+			// Create the Database object, using the default database service. The
+			// default database service is determined through configuration.
+			Database db = GetDatabase();
+
+			switch(commandType)
+			{
+				case CommandType.StoredProcedure:
+					string sqlCommand = this.SchemaStoredProcedureWithSeparator + "<%= CreateProcedureName(objTable, "D") %>";
+					dbCommand = db.GetStoredProcCommand(sqlCommand);
+<%		output.tabLevel = 5
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			output.autoTabLn "db.AddInParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", """ & name & """, DataRowVersion.Current);"
+		Next
+%>					
+					return dbCommand;
+
+				case CommandType.Text:
+					this.Query.ClearAll();
+					this.Where.WhereClauseReset();
+<%		output.tabLevel = 5
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			output.autoTabLn "this.Where." & alias & ".Operator = WhereParameter.Operand.Equal;"
+		Next
+%>					dbCommand = this.Query.GetDeleteCommandWrapper();
+
+					dbCommand.Parameters.Clear();
+<%		output.tabLevel = 5
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			output.autoTabLn "db.AddInParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", """ & name & """, DataRowVersion.Current);"
+		Next
+%>					
+					return dbCommand;
+
+				default:
+					throw new ArgumentException("Invalid CommandType", "commandType");
+			}
+		}
+
+		private void CreateParameters(Database db, DbCommand dbCommand)
+		{
+<%		output.tabLevel = 3
+		For Each objColumn in objTable.Columns
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			
+			isAutoKey = objColumn.IsAutoKey
+			If props.ContainsKey("SEQ:I:" & objColumn.Name) Then
+				isAutoKey = True
+			End if
+			
+			isRowID = False
+			If props.ContainsKey("SEQ:U:" & objColumn.Name) Then
+				isRowID = True
+			End if
+			
+			If objColumn.IsComputed Then
+				If objColumn.DataTypeName = "timestamp" Then 
+					output.autoTabLn "db.AddParameter(dbCommand, """ & name & """, DbType.Binary, 8, ParameterDirection.InputOutput, false, 0, 0, """ & name & """, DataRowVersion.Current, null);"
+				ElseIf objColumn.LanguageType = "string" Then 
+					output.autoTabLn "db.AddParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", " & objColumn.CharacterMaxLength & ", ParameterDirection.Output, true, 0, 0, """ & name & """, DataRowVersion.Current, null);"
+				Else
+					output.autoTabLn "db.AddParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", ParameterDirection.Output, """ & name & """, DataRowVersion.Current, null);"
+				End If
+			ElseIf isAutoKey Then
+				' Skip auto keys
+			ElseIf isRowID Then 
+				output.autoTabLn "db.AddParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", ParameterDirection.InputOutput, """ & name & """, DataRowVersion.Current, null);"
+			Else
+				output.autoTabLn "db.AddInParameter(dbCommand, """ & name & """, " & objColumn.DbTargetType & ", """ & name & """, DataRowVersion.Current);"
+			End If
+		Next
+%>		}
+		
+        public List<<%= tableAlias%>ClientProxy> ToList()
+        {
+            var list = new List<<%= tableAlias%>ClientProxy>();
+
+            if (this.RowCount > 0)
+            {
+                this.Rewind();
+
+                do
+                {
+                    <%= tableAlias%>ClientProxy client = new <%= tableAlias%>ClientProxy();
+                    <%= tableAlias%>ClientProxy.LoadFromObject((<%= tableAlias%>)this, client);
+
+                    list.Add(client);
+
+                } while (this.MoveNext());
+            }
+
+            return list;
+        }
+
+		#region Properties
+<%	output.tabLevel = 4
+
+	' List all fields as member variables
+	For Each objColumn In objTable.Columns
+		name = GetName(objColumn)
+		alias = GetAlias(objColumn) 
+		langType = GetFullType(objColumn)
+%>		public virtual <%= objColumn.LanguageType %> <%= alias %>
+		{
+			get
+			{
+<% 		If objColumn.LanguageType = "byte[]" Then
+            output.autoTabLn "return this.GetByteArray(" & tableAlias & "Schema." & alias & ".FieldName);"
+		Else
+            output.autoTabLn "return this.Get" & langType & "(" & tableAlias & "Schema." & alias & ".FieldName);"
+		End If
+%>	    	}
+			set
+			{
+<% 		If objColumn.LanguageType = "byte[]" Then
+            output.autoTabLn "this.SetByteArray(" & tableAlias & "Schema." & alias & ".FieldName, value);"
+		Else
+            output.autoTabLn "this.Set" & langType & "(" & tableAlias & "Schema." & alias & ".FieldName, value);"
+		End If
+%>			}
+		}
+<%	Next
+%>
+		public override string TableName
+		{
+			get { return "<%= objTable.Name %>"; }
+		}
+		
+		#endregion		
+		
+		#region String Properties
+<%	output.tabLevel = 2
+
+	For Each objColumn in objTable.Columns
+	
+		langType = objColumn.LanguageType
+		
+		If Not langType = "object" And Not InStr(1, langType, "[]") > 0 Then
+		
+			name = GetName(objColumn)
+			alias = GetAlias(objColumn)
+			fieldName = tableAlias & "Schema." & alias & ".FieldName"
+			langType = GetFullType(objColumn)
+			
+			output.autoTabLn "public virtual string s_" & alias
+			output.autoTabLn "{"
+			
+			' Get
+			output.tabLevel = 3
+			output.autoTabLn "get"
+			output.autoTabLn "{"
+			output.autoTabLn "    return this.IsColumnNull(" & fieldName & ") ? string.Empty : base.Get" & langType & "AsString(" & fieldName & ");"
+			output.autoTabLn "}"
+			
+			' Set
+			If (Not objColumn.DataTypeName = "timestamp" And Not objColumn.IsComputed) Then 
+				output.autoTabLn "set" 					
+				output.autoTabLn "{"
+				output.autoTabLn "    if(string.Empty == value)"					
+				output.autoTabLn "        this.SetColumnNull(" & tableAlias & "Schema." & alias & ".FieldName);"					
+				output.autoTabLn "    else"
+				output.autoTabLn "        this." & alias & " = base.Set" & langType & "AsString(" & fieldName & ", value);"					
+				output.autoTabLn "}" 				
+			End If
+			
+			output.tabLevel = 2
+			output.autoTabLn "}"
+			
+		End If
+	
+	Next
+%>		#endregion		
+	
+		#region Where Clause
+		public class WhereClause
+		{
+			public WhereClause(EasyObject entity)
+			{
+				this._entity = entity;
+			}
+			
+			public TearOffWhereParameter TearOff
+			{
+				get
+				{
+					if(_tearOff == null)
+					{
+						_tearOff = new TearOffWhereParameter(this);
+					}
+
+					return _tearOff;
+				}
+			}
+
+			#region TearOff's
+			public class TearOffWhereParameter
+			{
+				public TearOffWhereParameter(WhereClause clause)
+				{
+					this._clause = clause;
+				}
+				
+				<% output.writeLn ""
+				For Each objColumn in objTable.Columns
+				
+					alias   = GetAlias(objColumn)					
+				
+					output.write "				public WhereParameter " & alias & vbCrLf 
+					output.write "				{" & vbCrLf 				
+					output.write "					get" & vbCrLf 
+					output.write "					{" & vbCrLf 		
+					output.write "							WhereParameter wp = new WhereParameter(" + tableAlias + "Schema." + alias + ");" & vbCrLf
+					output.write "							this._clause._entity.Query.AddWhereParameter(wp);" & vbCrLf
+					output.write "							return wp;" & vbCrLf
+					output.write "					}" & vbCrLf 
+					output.write "				}" & vbCrLf & vbCrLf 					
+	
+				Next
+				%>
+				private WhereClause _clause;
+			}
+			#endregion
+		<% output.writeLn ""
+			Dim fldName
+			
+			For Each objColumn in objTable.Columns
+				
+				name   = GetAlias(objColumn)		
+			
+				fldName = "_" & name & "_W"
+				
+				output.write "			public WhereParameter " & name & vbCrLf 
+				output.write "		    {" & vbCrLf 				
+				output.write "				get" & vbCrLf 
+				output.write "		        {" & vbCrLf 				
+				output.write "					if(" & fldName & " == null)" & vbCrLf 
+				output.write "	        	    {" & vbCrLf 				
+				output.write "						" & fldName & " = TearOff." & name & ";" & vbCrLf
+				output.write "					}" & vbCrLf 
+				output.write "					return " & fldName & ";" & vbCrLf 
+				output.write "				}" & vbCrLf 
+				output.write "			}" & vbCrLf & vbCrLf 
+			Next
+			
+			For Each objColumn in objTable.Columns
+				name = "_" & GetAlias(objColumn)  & "_W"
+				output.write "			private WhereParameter " & name & " = null;" & vbCrLf 
+			Next  	
+			
+			output.write vbCrLf 
+			output.write "			public void WhereClauseReset()" & vbCrLf
+			output.write "			{" & vbCrLf 		
+			For Each objColumn in objTable.Columns
+				name = "_" & GetAlias(objColumn) & "_W"
+				output.write  "				" & name & " = null;" & vbCrLf 
+			Next    	
+			
+			output.write vbCrLf
+			output.write"				this._entity.Query.FlushWhereParameters();" & vbCrLf & vbCrLf 
+			output.write"			}" & vbCrLf 
+		%>	
+			private EasyObject _entity;
+			private TearOffWhereParameter _tearOff;
+			
+		}
+	
+		public WhereClause Where
+		{
+			get
+			{
+				if(_whereClause == null)
+				{
+					_whereClause = new WhereClause(this);
+				}
+		
+				return _whereClause;
+			}
+		}
+		
+		private WhereClause _whereClause = null;	
+		#endregion
+		
+		#region Aggregate Clause
+		public class AggregateClause
+		{
+			public AggregateClause(EasyObject entity)
+			{
+				this._entity = entity;
+			}
+			
+			public TearOffAggregateParameter TearOff
+			{
+				get
+				{
+					if(_tearOff == null)
+					{
+						_tearOff = new TearOffAggregateParameter(this);
+					}
+
+					return _tearOff;
+				}
+			}
+
+			#region TearOff's
+			public class TearOffAggregateParameter
+			{
+				public TearOffAggregateParameter(AggregateClause clause)
+				{
+					this._clause = clause;
+				}
+				
+				<% output.writeLn ""
+				For Each objColumn in objTable.Columns
+				
+					alias   = GetAlias(objColumn)					
+				
+					output.write "				public AggregateParameter " & alias & vbCrLf 
+					output.write "				{" & vbCrLf 				
+					output.write "					get" & vbCrLf 
+					output.write "					{" & vbCrLf 		
+					output.write "							AggregateParameter ap = new AggregateParameter(" + tableAlias + "Schema." + alias + ");" & vbCrLf
+					output.write "							this._clause._entity.Query.AddAggregateParameter(ap);" & vbCrLf
+					output.write "							return ap;" & vbCrLf
+					output.write "					}" & vbCrLf 
+					output.write "				}" & vbCrLf & vbCrLf 					
+	
+				Next
+				%>
+				private AggregateClause _clause;
+			}
+			#endregion
+		<% output.writeLn ""
+			
+			For Each objColumn in objTable.Columns
+				
+				name   = GetAlias(objColumn)		
+			
+				fldName = "_" & name & "_W"
+				
+				output.write "			public AggregateParameter " & name & vbCrLf 
+				output.write "		    {" & vbCrLf 				
+				output.write "				get" & vbCrLf 
+				output.write "		        {" & vbCrLf 				
+				output.write "					if(" & fldName & " == null)" & vbCrLf 
+				output.write "	        	    {" & vbCrLf 				
+				output.write "						" & fldName & " = TearOff." & name & ";" & vbCrLf
+				output.write "					}" & vbCrLf 
+				output.write "					return " & fldName & ";" & vbCrLf 
+				output.write "				}" & vbCrLf 
+				output.write "			}" & vbCrLf & vbCrLf 
+			Next
+			
+			For Each objColumn in objTable.Columns
+				name = "_" & GetAlias(objColumn)  & "_W"
+				output.write "			private AggregateParameter " & name & " = null;" & vbCrLf 
+			Next  	
+			
+			output.write vbCrLf 
+			output.write "			public void AggregateClauseReset()" & vbCrLf
+			output.write "			{" & vbCrLf 		
+			For Each objColumn in objTable.Columns
+				name = "_" & GetAlias(objColumn) & "_W"
+				output.write  "				" & name & " = null;" & vbCrLf 
+			Next    	
+			
+			output.write vbCrLf
+			output.write"				this._entity.Query.FlushAggregateParameters();" & vbCrLf & vbCrLf 
+			output.write"			}" & vbCrLf 
+		%>	
+			private EasyObject _entity;
+			private TearOffAggregateParameter _tearOff;
+			
+		}
+	
+		public AggregateClause Aggregate
+		{
+			get
+			{
+				if(_aggregateClause == null)
+				{
+					_aggregateClause = new AggregateClause(this);
+				}
+		
+				return _aggregateClause;
+			}
+		}
+		
+		private AggregateClause _aggregateClause = null;	
+		#endregion
+	}
+<%	If bAddWcf Then %>
+	
+	[DataContract(Namespace = "http://tempuri.org", Name = "<%= tableAlias %>Collection")]
+	[XmlType(TypeName = "<%= tableAlias %>CollectionProxy")]
+	[Serializable]
+	public partial class <%= tableAlias %>CollectionClientProxy
+	{
+		public <%= tableAlias %>CollectionClientProxy() { }
+		
+        [DataMember]
+		public List<<%= tableAlias %>ClientProxy> Collection = new List<<%= tableAlias %>ClientProxy>();
+
+        public static void LoadFromObject(<%= tableAlias %> obj, <%= tableAlias %>CollectionClientProxy proxy)
+        {
+            do
+            {
+                <%= tableAlias %>ClientProxy client = new <%= tableAlias %>ClientProxy();
+                <%= tableAlias %>ClientProxy.LoadFromObject(obj, client);
+                
+                proxy.Collection.Add(client);
+
+            } while (obj.MoveNext());
+        }
+	}
+	
+	[DataContract(Namespace = "http://tempuri.org", Name = "<%= tableAlias %>")]
+	[XmlType(TypeName = "<%= tableAlias %>Proxy")]
+	[Serializable]
+	public partial class <%= tableAlias %>ClientProxy
+	{
+		public <%= tableAlias %>ClientProxy()
+		{
+            this._columnNames = new <%= tableAlias %>ColumnNamesProxy();
+			this.RowState = "Added";
+		}
+		
+		public static void LoadFromObject(<%= tableAlias %> obj, <%= tableAlias %>ClientProxy proxy)
+		{
+<%	' List all fields as member variables
+	For Each objColumn In objTable.Columns
+		name = GetName(objColumn)
+		alias = GetAlias(objColumn)
+		If LCase(objColumn.LanguageType) = "string" Then
+%>			proxy._<%= alias %> = (obj.IsColumnNull("<%= name %>", true) ? string.Empty : obj.<%= alias %>);
+<%		Else
+%>			proxy._<%= alias %> = (obj.IsColumnNull("<%= name %>", true) ? proxy._<%= alias %>.GetValueOrDefault() : obj.<%= alias %>);
+<%		End If
+	Next
+%>			proxy.RowState = obj.RowState().ToString();
+		}
+		
+		#region Properties
+		
+<%	output.tabLevel = 4
+	order = 1
+
+	' List all fields as member variables
+	For Each objColumn In objTable.Columns
+		name = GetName(objColumn)
+		alias = GetAlias(objColumn) 
+		langType = GetNullableType(objColumn)
+%>		[DataMember(Order = <%= order %>, EmitDefaultValue = false)]
+		public <%= langType %> <%= alias %>
+		{
+			get
+			{
+				return _<%= alias %>;
+	    	}
+			set
+			{
+				this.SetDirty();
+				_<%= alias %> = value;
+			}
+		}
+		private <%= langType %> _<%= alias %>;
+		
+<%		order = order + 1
+	Next
+%>
+		[DataMember(Order = <%= order %>, EmitDefaultValue = false)]
+		public string RowState
+		{
+			get { return _rowState; }
+			set { _rowState = value; }
+		}
+		private string _rowState = "Unchanged";
+		
+		[DataMember(Order = <%= order + 1 %>, EmitDefaultValue = false)]
+        public <%= tableAlias %>ColumnNamesProxy ColumnNames
+        {
+            get { return _columnNames; }
+            set { _columnNames = value; }
+        }
+        private <%= tableAlias %>ColumnNamesProxy _columnNames;
+
+		#endregion
+		
+		public void MarkAsDeleted()
+		{
+			this.RowState = "Deleted";
+		}
+		
+		private void SetDirty()
+		{
+			if (this.RowState != "Added")
+			{
+				this.RowState = "Modified";
+			}
+		}
+	}
+
+    [DataContract(Namespace = "http://tempuri.org", Name = "<%= tableAlias %>ColumnNames")]
+    [XmlType(TypeName = "<%= tableAlias %>ColumnNamesProxy")]
+    [Serializable]
+    public class <%= tableAlias %>ColumnNamesProxy
+    {
+<%	' List all fields as member variables
+	order = 1
+	For Each objColumn In objTable.Columns
+		name = GetName(objColumn)
+		alias = GetAlias(objColumn)
+%>		[DataMember(Order = <%= order %>, EmitDefaultValue = true)]
+		public string <%= alias %> = "<%= name %>";
+<%		order = order + 1
+	Next
+%>    }
+<%	End If %>
+}
+<% 
+	' Save the output file for this Table
+	Dim filename
+	filename = input.item("txtPath")
+
+	Dim length
+	Dim pos
+	lenth = Len(filename)
+	pos = InStrRev(filename, "\") 
+
+	If Not pos = lenth Then
+		filename = filename & "\"
+	End If
+
+	If prefix = True Then 
+		filename = filename & "_" & tableAlias & ".cs"
+	Else 
+		filename = filename & tableAlias & ".cs"
+	End If
+
+	output.save filename, false
+	buffer = buffer & output.text
+	output.clear
+Next '  tableName
+	
+output.write buffer
+
+'===========================================================================
+' These are support routines called by the above scirpt
+'===========================================================================
+Function GetAlias(objColumn)
+	Dim name
+	name = TrimSpaces(objColumn.Alias)
+	GetAlias = UCase(Left(name, 1)) & Right(name, Len(name) -1)
+End Function
+
+Function GetName(objColumn)
+	Dim name
+	name = GetActualName(objColumn)
+	GetName = UCase(Left(name, 1)) & Right(name, Len(name) -1)
+End Function
+
+Function GetActualName(objColumn)
+	Dim name
+	GetActualName = objColumn.Name
+End Function
+
+Function TrimSpaces(str)
+
+	Dim tname
+	Dim name
+	Dim char
+	Dim l
+
+	name = ""
+	tname = str
+	l = Len(tname)
+
+	For j = 1 To l
+		char = Mid(tname, j, 1)
+		If Not char = " " Then
+			name = name & char
+		End If
+	Next
+
+	TrimSpaces = name
+End Function
+
+Function GetParameterPrefix
+
+	Select Case MyMeta.DbTarget 
+		Case "OleDb"
+			GetParameterPrefix = "@"
+		Case "SqlClient"
+			GetParameterPrefix = "@"
+		Case "OracleClient"
+			GetParameterPrefix = "p_"
+		Case "FirebirdSql"
+			GetParameterPrefix = "@"			
+	End Select
+
+End Function
+
+Function CreateProcedureName(objTable, suffix)
+
+	Dim bFirst
+    Dim str 
+	
+	bFirst = true
+	Select Case suffix
+		Case "L"
+			str = "GetAll"
+		Case "K"
+			str = "Get"
+		Case "U"
+			str = "Update"
+		Case "I"
+			str = "Add"
+		Case "D"
+			str = "Delete"
+	End Select
+	
+	CreateProcedureName = BuildProcedureName(BuildVerb(str, sStyle), objTable.Name, objTable.Alias)
+
+End Function
+
+Function BuildProcedureName(sVerb, sTableName, sTableAlias)
+	Dim sName
+	
+	sName = Replace(sFormat, "{verb}", sVerb)
+	sName = Replace(sName, "{table}", TrimSpaces(sTableName))
+	sName = Replace(sName, "{alias}", TrimSpaces(sTableAlias))
+	sName = Replace(sName, "{prefix}", sPrefix)
+	
+	BuildProcedureName = sName
+	
+End Function
+
+Function BuildVerb(sVerb, sStyle)
+
+	Select Case sStyle
+		Case "doodads"
+			Select Case sVerb
+				Case "Get"
+					sVerb = "LoadByPrimaryKey"
+				Case "GetAll"
+					sVerb = "LoadAll"
+				Case "Add"
+					sVerb = "Insert"
+			End Select
+		Case "daab"
+	End Select
+	
+	BuildVerb = sVerb
+	
+End Function
+
+Function GetFullType(objColumn)
+
+	Select Case LCase(objColumn.LanguageType)
+		Case "string"
+			GetFullType = "String"
+		Case "int"
+			GetFullType = "Integer"
+		Case "short"
+			GetFullType = "Short"
+		Case "decimal"
+			GetFullType = "Decimal"
+		Case "double"
+			GetFullType = "Double"
+		Case "datetime"
+			GetFullType = "DateTime"
+		Case "byte[]"
+			GetFullType = "Byte"
+		Case "byte"
+			GetFullType = "Byte"
+		Case "bool"
+			GetFullType = "Boolean"
+		Case "float"
+			GetFullType = "Float"
+		Case "long"
+			GetFullType = "Long"
+		Case Else
+			GetFullType = objColumn.LanguageType
+	End Select
+	
+End Function
+
+Function GetNullableType(objColumn)
+
+	Select Case LCase(objColumn.LanguageType)
+		Case "string"
+			GetNullableType = "string"
+		Case "int"
+			GetNullableType = "int?"
+		Case "short"
+			GetNullableType = "short?"
+		Case "decimal"
+			GetNullableType = "decimal?"
+		Case "double"
+			GetNullableType = "double?"
+		Case "datetime"
+			GetNullableType = "DateTime?"
+		Case "byte[]"
+			GetNullableType = "byte?"
+		Case "byte"
+			GetNullableType = "byte?"
+		Case "bool"
+			GetNullableType = "bool?"
+		Case "float"
+			GetNullableType = "float?"
+		Case "long"
+			GetNullableType = "long?"
+		Case Else
+			GetNullableType = objColumn.LanguageType & "?"
+	End Select
+	
+End Function
+
+Function GetParameterSize(objColumn)
+
+	Select Case objColumn.DbTargetType
+		Case "DbType.Int32"
+			GetParameterSize = "4"
+		Case "DbType.Binary"
+			GetParameterSize = "8"
+		Case "DbType.Guid"
+			GetParameterSize = "16"
+		Case "DbType.StringFixedLength", "DbType.AnsiStringFixedLength", "DbType.String", "DbType.AnsiString"
+			GetParameterSize = objColumn.CharacterMaxLength
+		Case Else
+			GetParameterSize = "0"
+	End Select
+
+End Function
+
+Function ConvertToBoolean(test)
+	
+	If test Then
+		ConvertToBoolean = "true"
+	Else
+		ConvertToBoolean = "false"
+	End If
+	
+	
+End Function
+%>
+##|BODY_END

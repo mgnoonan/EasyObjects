@@ -1,0 +1,226 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>EasyObjects.NET</title>
+</head>
+
+<body>
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="padding-left: 22px; padding-right: 10px; padding-top: 0px; padding-bottom: 0px">
+		<h1 class="dtH1">EasyObjects.NET</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END-->
+<div id="nstext" style="overflow: auto; top: 0px; padding-right: 20px" valign="bottom">
+		<p>Based on
+		<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnpag2/html/entlib.asp">
+		Microsoft's Enterprise Library </a>and
+		<a href="http://www.mygenerationsoftware.com/portal/dOOdads/Overview/tabid/63/Default.aspx">
+		MyGeneration's dOOdads</a>, EasyObjects.NET simplifies 
+		development tasks that implement common data access functionality. 
+		Applications can use EasyObjects.NET in a variety of situations, 
+		such as reading data for display, passing data through application 
+		layers, and submitting changed data back to the database system. 
+		EasyObjects.NET includes support for both stored procedures and 
+		in-line SQL, connection management, transaction management, null-value 
+		handling and 
+		dynamic query creation. In other words, EasyObjects.NET encapsulates 
+		features often overlooked by developers in 
+		simple-to-use classes, boosting developer productivity.</p>
+		<p>EasyObjects.NET provides classes such as the <b>DynamicQuery</b> 
+		class which helps to abstract the query mechanism from 
+		any particular database implementation. The application developer can take advantage of 
+		this class to build dynamic queries without having to learn 
+		database-specific query language constructs. This allows applications to be 
+		ported from one database type to another without modifying the client 
+		code, or rewriting all the custom queries. The code for applications 
+		written for one type of database, such as SQL Server, looks much the 
+		same as the code for applications written for another type of database, 
+		such as Oracle. EasyObjects.NET includes dynamic query providers for SQL 
+		Server and Oracle, but developers can add custom providers and more will 
+		be added in the future.</p>
+		<p>Another feature of EasyObjects.NET is that application code can refer 
+		to particular databases by a configuration 
+		connection string name, such as &quot;DEV&quot; or &quot;PROD.&quot; The 
+		application code can specify a named instance of a database by setting the
+		<b>EasyObject.DatabaseInstanceName</b> property. Each 
+		named database has its connection information stored in a configuration 
+		file. Changing the settings in the configuration file allows developers 
+		to use their applications with different database configurations, 
+		without having to recompile their code.</p>
+		<p>EasyObjects.NET provides the following benefits:</p>
+		<ul>
+			<li>It leverages the features and functionality provided by the Data 
+			Access Application Block of the Enterprise Library. 
+			</li>
+			<li>It eliminates the need to write boilerplate code to perform 
+			standard tasks. 
+			</li>
+			<li>In conjunction with code generation, it helps maintain consistent data access practices, both within 
+			an application and across the enterprise. 
+			</li>
+			<li>It provides a consistent approach to writing application data 
+			and business object layers.</li>
+			<li>It reduces application development and maintenance cycles.</li>
+			<li>It reduces difficulties in changing the database type.
+			</li>
+			<li>It relieves developers from learning different programming 
+			models for different types of databases. 
+			</li>
+			<li>It reduces the amount of code that developers must write when 
+			they port applications to different types of databases. </li>
+		</ul>
+		<h1 class="heading">&nbsp;</h1>
+		<h1 class="heading">Common Scenarios</h1>
+		<p>Developers often write applications that use databases. Because it is 
+		so common, developers may find themselves writing the same code over and 
+		over for each application. In addition, developers sometimes overlook 
+		advanced features such as connection management different types of databases. Although the tasks are the same, 
+		the code must be adapted to suit the programming model of each database. 
+		EasyObjects.NET solves these problems by providing the 
+		logic to perform the most common data access tasks, while incorporating 
+		and simplifying advanced features. Developers only need 
+		to do the following:</p>
+		<ul>
+			<li>Create the five standard stored procedures (select one, select 
+			all, insert, update, delete) for the database table.</li>
+			<li>Create the business entity object abstract class and concrete 
+			class for the database table.
+			</li>
+			<li>Call the appropriate method(s). These methods are optimized for 
+			performance. They are also portable.</li>
+		</ul>
+		<p>EasyObjects.NET works transparently with SQL Server 
+		and Oracle databases.  </p>
+		<h1 class="heading">&nbsp;</h1>
+		<h1 class="heading">Audience Requirements</h1>
+		<p>This guide is intended for software architects and software 
+		developers. To benefit fully from this guide, you should have an 
+		understanding of the following technologies:</p>
+		<ul>
+			<li>Microsoft® Visual Studio® 2003 development system&nbsp; 
+			</li>
+			<li>.NET Framework version 1.1 
+			</li>
+			<li>Microsoft SQL Server or Oracle databases</li>
+		</ul>
+		<h1>&nbsp;</h1>
+		<h1>Highlights of the Enterprise Library Data Access Application 
+			Block</h1>
+			<p>The Enterprise Library Data Access Application Block includes the 
+			following new features:</p>
+			<ul>
+				<li>It includes a graphical tool for managing configuration 
+				settings. 
+				</li>
+				<li>It includes support for multiple database systems, with the 
+				ability to add additional systems. 
+				</li>
+				<li>It includes a factory and named instances that abstract the 
+				database and the connection string, respectively. This lets you 
+				include named instances in your application code. These are 
+				associated with connection strings using configuration settings. 
+				You can modify connection string settings and switch to 
+				different databases and database types simply by changing these 
+				settings. You do not need to recompile your code. 
+				</li>
+				<li>It expands the support for parameter caching to allow 
+				applications to clear the cache. </li>
+			</ul>
+				<h1 class="heading">&nbsp;</h1>
+		<h1 class="heading">System Requirements</h1>
+				<p>To run the EasyObjects.NET, you need the following:</p>
+				<ul>
+					<li>Microsoft Windows® 2000, Windows XP Professional, or 
+					Windows 2003 operating system 
+					</li>
+					<li>Microsoft .NET Framework 1.1</li>
+					<li>Microsoft Visual Studio 2003 development system
+					</li>
+					<li>A database server running SQL Server 7.0 or later, 
+					Oracle 9i or later.</li>
+					<li>Microsoft Enterprise Library June 2005 release</li>
+				</ul>
+				<h1 class="heading">&nbsp;</h1>
+		<h1 class="heading">Enterprise Library Dependencies</h1>
+				<p>EasyObjects.NET depends on other code 
+				included in the Enterprise Library:</p>
+				<ul>
+					<li><b>Common library functionality</b>. This provides 
+					various functions for exposing events and data used for 
+					system management. 
+					</li>
+					<li><b>The Configuration Application Block.</b> 
+					EasyObjects.NET uses this to read its configuration 
+					information.</li>
+					<li><b>The Data Access Application Block.</b> 
+					EasyObjects.NET uses this to perform all database 
+					operations.</li>
+				</ul>
+				<p>&nbsp;</p>
+				<h1 class="heading">EasyObjects.NET Documentation</h1>
+				<p>In addition to the introduction, the documentation contains 
+				the following sections:</p>
+				<ul>
+					<li><a href="EONDesign.htm">Design of EasyObjects.NET</a>. This section describes the decisions that went into designing 
+					EasyObjects.NET and the rationale behind those decisions.</li>
+					<li><a href="developapps.htm">
+					Developing Applications with EasyObjects.NET</a>. This section is divided into several subsections.
+					<a href="developapps-config.htm">
+					Entering Configuration Information</a> describes how to configure an 
+					application for use with EasyObjects.NET.
+					<a href="developapps-code.htm">
+					Adding Application Code</a> describes how to prepare your 
+					application to use EasyObjects.NET. The 
+					next subsection,
+					<a href="developapps-scenarios.htm">
+					Key Scenarios</a>, demonstrates how to use EasyObjects.NET 
+					to perform the most typical data access operations. 
+					</li>
+					<li><a href="codegen.htm">Using Code Generation</a>. This 
+					section describes code generation techniques and how they 
+					can help quickly develop applications.</li>
+				</ul>
+				<p>&nbsp;</p>
+				<h1 class="heading">More Information</h1>
+				<p>For more information see the web sites:</p>
+				<ul>
+					<li>
+					<a href="http://www.easyobjects.net">EasyObjects.NET
+					</a>
+					</li>
+					<li>
+					<a href="http://www.mygenerationsoftware.com/">MyGeneration</a> 
+					</li>
+					<li>
+					<a href="http://msdn.microsoft.com/practices/">Microsoft 
+					patterns &amp; practices</a> 
+					</li>
+					<li>
+					<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnpag/html/scalenet.asp">
+					Improving .NET Application Performance and Scalability</a></li>
+				</ul>
+				<p>&nbsp;</p>
+				<p>&nbsp;</div>
+			<div id="footer">
+				<div class="footerLine">
+					<hr></div>
+				To give feedback, get assistance or download additional content 
+				please visit the 
+				<a href="http://www.mygenerationsoftware.com/phpbb2/viewforum.php?f=24">
+				EasyObjects.NET Forums on MyGeneration</a>. 
+				<p>&nbsp;</p>
+				Copyright © 2005 by Noonan Consulting Inc.. All rights reserved.</div>
+		</div>
+		<p>&nbsp;</div>
+</div>
+
+</body>
+
+</html>

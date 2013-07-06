@@ -1,0 +1,127 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Creating Dynamic Queries</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Creating Dynamic Queries</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+	<p>Often developers need to query database information based on input 
+	received from the user interface. Depending on your application's 
+	architecture, this can become somewhat of a maintenance burden. For example, 
+	if your application uses stored procedures to retrieve product information, 
+	you may end up writing procedures to query the Products table by CategoryID, 
+	by OrderID, by SupplierID, and on and on. Later on in the application's 
+	lifespan, a schema change to the Products table now requires support staff 
+	to change all of the custom stored procedures. Developers are also 
+	constrained by the number of columns returned by the stored procedure. What 
+	if the procedure returns every column in the table, but the developer needs 
+	only 1 or 2?</p>
+	<p>In a multi-database scenario, developers are forced to learn the query 
+	syntax of each database (SQL Server, Oracle, Access, MySQL, Firebird, etc.). 
+	EasyObjects.NET provides developers an easy, database-independent query 
+	syntax that works with all supported databases. A fundamental understanding 
+	of database queries is still required, but not database-specific query 
+	syntax.</p>
+	<h2>Typical Goals</h2>
+	<p>In this scenario, you want to query a database table or view load the EasyObject business object with the results, 
+	without having to write custom stored procedures or database-specific inline 
+	SQL.</p>
+	<p>These goals can be summarized as follows: </p>
+	<ul>
+		<li>You want to retrieve data from a database table or view.   
+		</li>
+		<li>You want to specify one or more columns as part of the results in 
+		order to minimize network traffic.   
+		</li>
+		<li>You want to specify parameters for the SQL WHERE clause in order to 
+		bring back a subset of the data. 
+		</li>
+		<li>You want to specify columns for the SQL ORDER BY clause in order to 
+		bring back the results with a custom sort order.</li>
+		<li>You want the same techniques and syntax to work regardless of which 
+		database platform you are using.</li>
+	</ul>
+	<h2>Solution</h2>
+	<p>Use the <b>Query</b> object provided by the <b>DynamicQuery</b> class. 
+	See the sample code below for examples.</p>
+	<h2>Using Query</h2>
+	<p>The following code shows how to use the <b>Query</b> object.</p>
+	<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Employees emp = new Employees();
+
+// Limit the columns returned by the SELECT query
+emp.Query.AddResultColumn(EmployeesSchema.LastName);
+emp.Query.AddResultColumn(EmployeesSchema.FirstName);
+emp.Query.AddResultColumn(EmployeesSchema.City);
+emp.Query.AddResultColumn(EmployeesSchema.Region);
+
+// Add an ORDER BY clause
+emp.Query.AddOrderBy(EmployeesSchema.LastName);
+
+// Add a WHERE clause
+emp.Where.Region.Value = &quot;WA&quot;;
+
+emp.Query.Load();
+
+// Bind the EasyObject's DefaultView to the DataGrid for display
+this.resultsDataGrid.SetDataBinding(emp.DefaultView, null);
+
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Dim emp As Employees = New Employees
+
+' Limit the columns returned by the SELECT query
+emp.Query.AddResultColumn(EmployeesSchema.LastName)
+emp.Query.AddResultColumn(EmployeesSchema.FirstName)
+emp.Query.AddResultColumn(EmployeesSchema.City)
+emp.Query.AddResultColumn(EmployeesSchema.Region)
+
+' Add an ORDER BY clause
+emp.Query.AddOrderBy(EmployeesSchema.LastName)
+
+' Add a WHERE clause
+emp.Where.Region.Value = &quot;WA&quot;
+
+emp.Query.Load()
+
+' Bind the EasyObject's DefaultView to the DataGrid for display
+Me.resultsDataGrid.SetDataBinding(emp.DefaultView, Nothing)
+</pre>
+	<h2>Usage Notes</h2>
+	<p>Calling <b>Query.Load</b> without specifying any result columns or <b>
+	Where</b> parameters is equivalent to calling <b>LoadAll</b>.</p>
+	<!-- See Also -->
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps-scenarios.htm">
+	Key Scenarios</a>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

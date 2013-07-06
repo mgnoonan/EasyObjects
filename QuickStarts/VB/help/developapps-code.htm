@@ -1,0 +1,88 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Adding Application Code</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Adding Application Code</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+		EasyObjects.NET is designed to support the most common 
+		scenarios for accessing a database. When adding your application code, 
+		refer to the scenarios in the
+		<a href="developapps-scenarios.htm">
+		Key Scenarios</a> sections and select the ones that best suit your 
+		situation. Use the code that accompanies the scenario either as-is or 
+		adapt it as necessary.<p>First, prepare your application to use the Data 
+		Access Application Block.</p>
+		<h4><strong>To prepare your application</strong></h4>
+		<ol>
+			<li>Set a reference to the Data Access Application Block assembly. 
+			In Visual Studio, right-click <b>References</b> in the Solution 
+			Explorer window, and then click <b>Add References</b> to add a 
+			reference to the <b>EnterpriseLibrary.Data.dll</b> assembly. 
+			</li>
+			<li>Following the same procedure, set a reference to the Enterprise 
+			Library Configuration Application Block assembly, 
+			Microsoft.Practices.EnterpriseLibrary.Configuration.dll and to the 
+			Common assembly, Microsoft.Practices.EnterpriseLibrary.Common.dll. 
+			</li>
+			<li>Following the same procedure, set a reference to the 
+			EasyObjects.NET assembly, NCI.EasyObjects.dll.</li>
+			<li>Add the following <b>using</b> statements at the top of your 
+			data access client source file(s) to refer to the required 
+			namespaces. 
+			<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+using NCI.EasyObjects;
+
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Imports NCI.EasyObjects
+</pre>
+			<pre><!--  --></pre>
+			</li>
+		</ol>
+		<h4>Generating your business objects</h4>
+		<p>It is recommended, but not required, that you use a code generator to 
+		create your EasyObjects business objects. Using code generation, your 
+		business objects and stored procedures can be created in a matter of 
+		minutes. The entire QuickStart application BLL folder was generated and 
+		ready for use in approximately 2 minutes, including all the necessary 
+		stored procedures.</p>
+		<p>We recommend the MyGeneration code generator, because it is 
+		well-supported and also free. The EasyObjects.NET distribution comes 
+		with templates to generate your stored procedures for both SQL Server 
+		and Oracle, and your business objects in both C# and VB.NET.</div>
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps-config.htm">Entering Configuration Information</a> | 
+	<a href="developapps-scenarios.htm">Key Scenarios</a> | 
+	<a href="developapps-details.htm">Details of Development Tasks</a>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

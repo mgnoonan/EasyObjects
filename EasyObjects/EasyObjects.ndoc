@@ -1,0 +1,50 @@
+<project SchemaVersion="1.3">
+    <assemblies>
+        <assembly location=".\bin\Debug\NCI.EasyObjects.dll" documentation=".\bin\Debug\NCI.EasyObjects.xml" />
+    </assemblies>
+    <namespaces>
+        <namespace name="NCI.EasyObjects">The primary classes for the EasyObjects.NET architecture.</namespace>
+        <namespace name="NCI.EasyObjects.Configuration">All the classes to read the EasyObjects configuration data.</namespace>
+        <namespace name="NCI.EasyObjects.DynamicQueryProvider">Provider-specific implementations of the DynamicQuery class.</namespace>
+    </namespaces>
+    <documenters>
+        <documenter name="JavaDoc">
+            <property name="OutputDirectory" value=".\doc\" />
+        </documenter>
+        <documenter name="LaTeX">
+            <property name="OutputDirectory" value=".\doc\" />
+            <property name="TextFileFullName" value="Documentation.tex" />
+            <property name="TexFileBaseName" value="Documentation" />
+            <property name="LatexCompiler" value="latex" />
+            <property name="TexFileFullPath" value=".\doc\Documentation.tex" />
+        </documenter>
+        <documenter name="LinearHtml">
+            <property name="OutputDirectory" value=".\doc\" />
+            <property name="Title" value="An NDoc Documented Class Library" />
+        </documenter>
+        <documenter name="MSDN">
+            <property name="OutputDirectory" value=".\doc\" />
+            <property name="HtmlHelpName" value="EasyObjects.NET" />
+            <property name="Title" value="EasyObjects.NET Programmers Reference" />
+            <property name="OutputTarget" value="Web" />
+            <property name="SdkLinksOnWeb" value="True" />
+            <property name="ShowMissingSummaries" value="True" />
+            <property name="ShowMissingParams" value="True" />
+            <property name="ShowMissingReturns" value="True" />
+            <property name="ShowMissingValues" value="True" />
+            <property name="CopyrightText" value="Copyright (c) 2005 Noonan Consulting Inc. All rights reserved." />
+        </documenter>
+        <documenter name="MSDN 2003">
+            <property name="OutputDirectory" value=".\doc\" />
+            <property name="Title" value="An NDoc Documented Class Library" />
+        </documenter>
+        <documenter name="VS.NET 2003">
+            <property name="OutputDirectory" value=".\doc\" />
+            <property name="HtmlHelpName" value="Documentation" />
+            <property name="Title" value="An NDoc documented library" />
+        </documenter>
+        <documenter name="XML">
+            <property name="OutputFile" value=".\doc\doc.xml" />
+        </documenter>
+    </documenters>
+</project>

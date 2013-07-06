@@ -1,0 +1,97 @@
+#===============================================================================
+# Microsoft patterns & practices Enterprise Library
+# Data Access Application Block
+#===============================================================================
+# Copyright © Microsoft Corporation.  All rights reserved.
+# THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY
+# OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT
+# LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+# FITNESS FOR A PARTICULAR PURPOSE.
+#===============================================================================
+
+# This file is used to generate SR.cs and SR.resx files. The copyright notice
+# for those files appears here, in this SR.strings file.
+#
+
+# Options are specified as lines starting with "#!"
+
+# Comments are lines starting with ";" or "#"
+
+# To define the SR class public instead of internal (default):
+##! accessor_class_accessibility = public
+
+#! culture_info = CultureInfo.CurrentUICulture
+
+[strings]
+; Exception Messages
+;Message when connection string node not found for instance
+ExceptionConnectionStringNodeNotFound(connectionString, instanceName) = The connection string node named {0} could not be found for the instance {1}.\n Please make sure that all connection string nodes are loaded before the instance and check that the name exists.
+;Message when instance node not found for database settings
+ExceptionInstanceNodeNotFound(instanceName) = The instance node named {0} could not be found for the database settings.\n Please make sure that all instance nodes are loaded before the database settings checks for the instance and check that the name exists.
+;Message when database type node not found for instance
+ExceptionDatabaseTypeNodeNotFound(typeName, instanceName) = The database type node named {0} could not be found for the instance {1}.\n Please make sure that all database type nodes are loaded before the instance and check that the name exists.
+
+; Menu Item Text
+EasyObjectsConfigurationMenuText = EasyObjects.NET Dynamic Query Provider
+ParameterMenuText = Parameter
+DatabaseTypeNodeMenuText = Database Type
+InstanceNodeMenuText = Dynamic Query Instance
+InstanceCollectionNodeMenuText = Instance Collection
+DynamicQueryTypeCollectionNodeMenuText = Dynamic Query Type Collection
+
+; Statusbar Text
+EasyObjectsConfigurationStatusText = Create a new EasyObjects.NET Dynamic Query Provider
+ParameterStatusText = Create a new Parameter
+GenericCreateStatusText(string name) = Create a new {0}
+DynamicQueryNodeStatusText = Create a new Dynamic Query
+InstanceNodeStatusText = Create a new Database Instance
+InstanceCollectionNodeStatusText = Create a new Instance Collection
+DynamicQueryTypeCollectionNodeStatusText = Create a new Database Type Collection
+DatabaseTypeNodeStatusText = Create a new Database Type
+
+; The default display name for a PrameterNode
+DefaultParameterNodeName = Parameter
+
+; The description of the parameter value
+ParameterValueDescription = The value of the parameter for the dynamic query.
+
+; The default name for a DatabaseSettingsNode
+DefaultDynamicQuerySettingsName = EasyObjects.NET Dynamic Query Provider
+
+; The default name for a DatabaseTypeCollectionNode
+DefaultDatabaseTypeCollectionNodeName = Database Types
+DefaultDynamicQueryTypeCollectionNodeName = Dynamic Query Types
+
+; The default name for a DatabaseTypeNode
+DefaultDatabaseTypeNodeName = Database Type
+DefaultDynamicQueryTypeNodeName = Dynamic Query Type
+
+; The default name for an InstanceCollectionNode (plural)
+DefaultInstanceCollectionNodeName = Dynamic Query Instances
+
+; The default display name for an InstanceNode
+DefaultInstanceNodeName = Dynamic Query Instance
+
+; Name for default database
+DefaultDatabaseName = Sql Server
+
+; The description for the InstanceNode in the database settings node
+DefaultInstanceTypeDescription = The default instance for the dynamic query settings.
+
+; The description for the DatabaseTypeNode in the instance node
+InstanceDatabaseTypeDescription = The type of database used by this instance.
+
+; The description for the type of the DatabaseTypeNode
+DatabaseTypeFullyQualifedNameDescription = The fully qualified type name of the database.
+
+; The category for all nodes
+CategoryGeneral = General
+CategoryDatabase = Database
+
+; The default name for the database type when created new
+DefaultDatabaseTypeName = Sql Server
+
+MoveUpMenuItemText = Move Up
+MoveDownMenuItemText = Move Down
+MoveUpStatusText = Move currently selected node up
+MoveDownStatusText = Move currently selected node down

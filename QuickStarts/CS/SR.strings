@@ -1,0 +1,72 @@
+# String resource file 
+#
+# When processed by the String Resource Tool, this file generates
+# both a .CS and a .RESX file with the same name as the file.
+# The .CS file contains a class which can be used to access these 
+# string resources, including the ability to format in parameters,
+# which are identified with the .NET {x} format (see String.Format help).    
+#
+# Comments below assume the file name is SR.strings.
+#
+
+#
+# LocStudio comments description:
+#
+
+; For localizers and UE (These comments will be seen in LocStudio)
+# For internal use (These comments will not be seen in LocStudio)
+
+# Comments should be added before the string. 
+
+# When the string resource file is complied the tool will read these comments 
+# and push the comment using the <comment> tag into the resx file.  
+# LocStudio parser looks in the resx file for the comment tag to load comments 
+# into the instruction field of the database. 
+# 
+# For LocStudio to parse the comments the resx name must match the .resources 
+# name in the manifest, so if you rename the namespace you need to change the 
+# name of the project as well.  After you have done this you will need to make a 
+# single character change to the string file and save, so that the SR.String cs 
+# file has the correct namespace embedded in it. 
+#
+
+#
+# Options description:
+#
+
+# Options are specified as lines starting with "#!"
+# To use an option below delete the first # in the corresponding line
+
+# To define the SR class public instead of internal (default):
+##! accessor_class_accessibility = public
+
+# To use a code fragment as the culture instead of the Culture property (default):
+##! culture_info = <YourCodeHere>
+# for example, #! culture_info = MyResources.CommonCultureInfo
+# where CommonCultureInfo is a static member of a class MyResources
+
+[strings]
+
+# The following three strings are samples. You may delete them
+
+; Test message used just to demonstrate string resource tool
+SimpleMessage = This is a simple test message.
+
+# This message has two arguments, so it's accessor is a 
+# function rather than a property, SR.FileOpenError( filename, description )
+
+; Error message displayed when the app can't open a file
+FileOpenError(filename, description) = Unable to open {0} : {1}
+
+# you may optionally specify a datatype for the arguments
+
+; Status update message to display progress, this will typically be invoked
+; every 100 iterations or so...
+ProgressMessage(int iterationCount) = Completed {0} iterations.
+
+GeneralExceptionMessage(message) = There are some problems while trying to use the EasyObjects Quick Start, please check the following error messages: \n{0}\n
+DbRequirementsMessage = This test requires database modifications. Please make sure the Northwind database is present and has been initialized using the SetUpQuickStartsDB.bat database script.
+ApplicationErrorMessage = Application Error
+AffectedRowsMessage(int rows) = {0} rows were affected
+TransferCompletedMessage = Transfer Completed
+TransferFailedMessage = Transfer Failed

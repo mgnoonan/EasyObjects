@@ -1,0 +1,159 @@
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="ResMimeType">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="Version">
+    <value>1.0.0.0</value>
+  </resheader>
+  <resheader name="Reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="Writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="culture_info">
+    <value>CultureInfo.CurrentUICulture</value>
+  </resheader>
+  <data name="ExceptionConnectionStringNodeNotFound">
+    <value>The connection string node named {0} could not be found for the instance {1}.\n Please make sure that all connection string nodes are loaded before the instance and check that the name exists.</value>
+    <comment>connectionString, instanceName</comment>
+  </data>
+  <data name="ExceptionInstanceNodeNotFound">
+    <value>The instance node named {0} could not be found for the database settings.\n Please make sure that all instance nodes are loaded before the database settings checks for the instance and check that the name exists.</value>
+    <comment>instanceName</comment>
+  </data>
+  <data name="ExceptionDatabaseTypeNodeNotFound">
+    <value>The database type node named {0} could not be found for the instance {1}.\n Please make sure that all database type nodes are loaded before the instance and check that the name exists.</value>
+    <comment>typeName, instanceName</comment>
+  </data>
+  <data name="EasyObjectsConfigurationMenuText">
+    <value>EasyObjects.NET Dynamic Query Provider</value>
+  </data>
+  <data name="ParameterMenuText">
+    <value>Parameter</value>
+  </data>
+  <data name="DatabaseTypeNodeMenuText">
+    <value>Database Type</value>
+  </data>
+  <data name="InstanceNodeMenuText">
+    <value>Dynamic Query Instance</value>
+  </data>
+  <data name="InstanceCollectionNodeMenuText">
+    <value>Instance Collection</value>
+  </data>
+  <data name="DynamicQueryTypeCollectionNodeMenuText">
+    <value>Dynamic Query Type Collection</value>
+  </data>
+  <data name="EasyObjectsConfigurationStatusText">
+    <value>Create a new EasyObjects.NET Dynamic Query Provider</value>
+  </data>
+  <data name="ParameterStatusText">
+    <value>Create a new Parameter</value>
+  </data>
+  <data name="GenericCreateStatusText">
+    <value>Create a new {0}</value>
+    <comment>string name</comment>
+  </data>
+  <data name="DynamicQueryNodeStatusText">
+    <value>Create a new Dynamic Query</value>
+  </data>
+  <data name="InstanceNodeStatusText">
+    <value>Create a new Database Instance</value>
+  </data>
+  <data name="InstanceCollectionNodeStatusText">
+    <value>Create a new Instance Collection</value>
+  </data>
+  <data name="DynamicQueryTypeCollectionNodeStatusText">
+    <value>Create a new Database Type Collection</value>
+  </data>
+  <data name="DatabaseTypeNodeStatusText">
+    <value>Create a new Database Type</value>
+  </data>
+  <data name="DefaultParameterNodeName">
+    <value>Parameter</value>
+  </data>
+  <data name="ParameterValueDescription">
+    <value>The value of the parameter for the dynamic query.</value>
+  </data>
+  <data name="DefaultDynamicQuerySettingsName">
+    <value>EasyObjects.NET Dynamic Query Provider</value>
+  </data>
+  <data name="DefaultDatabaseTypeCollectionNodeName">
+    <value>Database Types</value>
+  </data>
+  <data name="DefaultDynamicQueryTypeCollectionNodeName">
+    <value>Dynamic Query Types</value>
+  </data>
+  <data name="DefaultDatabaseTypeNodeName">
+    <value>Database Type</value>
+  </data>
+  <data name="DefaultDynamicQueryTypeNodeName">
+    <value>Dynamic Query Type</value>
+  </data>
+  <data name="DefaultInstanceCollectionNodeName">
+    <value>Dynamic Query Instances</value>
+  </data>
+  <data name="DefaultInstanceNodeName">
+    <value>Dynamic Query Instance</value>
+  </data>
+  <data name="DefaultDatabaseName">
+    <value>Sql Server</value>
+  </data>
+  <data name="DefaultInstanceTypeDescription">
+    <value>The default instance for the dynamic query settings.</value>
+  </data>
+  <data name="InstanceDatabaseTypeDescription">
+    <value>The type of database used by this instance.</value>
+  </data>
+  <data name="DatabaseTypeFullyQualifedNameDescription">
+    <value>The fully qualified type name of the database.</value>
+  </data>
+  <data name="CategoryGeneral">
+    <value>General</value>
+  </data>
+  <data name="CategoryDatabase">
+    <value>Database</value>
+  </data>
+  <data name="DefaultDatabaseTypeName">
+    <value>Sql Server</value>
+  </data>
+  <data name="MoveUpMenuItemText">
+    <value>Move Up</value>
+  </data>
+  <data name="MoveDownMenuItemText">
+    <value>Move Down</value>
+  </data>
+  <data name="MoveUpStatusText">
+    <value>Move currently selected node up</value>
+  </data>
+  <data name="MoveDownStatusText">
+    <value>Move currently selected node down</value>
+  </data>
+</root>

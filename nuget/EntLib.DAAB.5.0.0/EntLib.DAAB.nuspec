@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<package> 
+  <metadata> 
+    <id>EntLib5.DAAB</id> 
+    <title>Enterprise Library 5 Data Access Application Block</title>
+    <version>5.0.0</version> 
+    <authors>Microsoft</authors> 
+    <owners>Matthew Noonan</owners>
+    <description>The necessary signed files for running the Data Access Application Block (DAAB) from the Enterprise Library 5.0</description> 
+    <projectUrl>http://msdn.microsoft.com/en-us/library/ff632023.aspx</projectUrl>
+    <licenseUrl>http://entlib.codeplex.com/license</licenseUrl>
+    <tags>enterprise library entlib data access application block daab .net40</tags>
+    <language>en-US</language> 
+  </metadata> 
+</package>

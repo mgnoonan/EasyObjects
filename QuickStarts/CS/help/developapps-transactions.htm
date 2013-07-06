@@ -1,0 +1,126 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Performing Multiple Updates Within a Transaction</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Performing Multiple Updates Within a Transaction</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+	<p>A common requirement, when an application executes multiple operations against a database, is that all of the operations must succeed or the database must roll back to its original state (that is, its state before the operations began). This all-or-nothing requirement is called a transaction. Transactions ensure the integrity of a database system's state. For example, in a classic banking scenario, an application must debit one account and credit another with a particular amount of money. For proper accounting, it is essential that either both operations succeed or neither operation succeeds. This means that both operations should be performed under the context of a single transaction. </p>
+	<h2>Typical Goals</h2>
+	<p>The typical goal in this scenario is that all updates to a database must succeed or none of them should be performed.</p>
+
+	<h2>Solution</h2>
+	<p>The <b>TransactionManager</b> class automatically wraps all <b>
+	EasyObject</b> save operations in a transaction, but you can specify a wider 
+	scope, encompassing multiple objects. Use the<b> BeginTransaction</b> and 
+	<b>CommitTransaction</b> methods to initiate the operation, and <b>
+	RollbackTransaction</b> &nbsp;to cancel the operation. See the sample code below for examples.</p>
+	<h2>Using TransactionManager</h2>
+	<p>The following code shows how to use the <b>DefaultView</b> property.</p>
+	<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Products prod = new Products();
+Employees emp = new Employees();
+
+// Update the requested product
+prod.LoadByPrimaryKey(4);
+prod.UnitsInStock += 1;
+
+// Update the requested employee
+emp.LoadByPrimaryKey(1);
+emp.s_Country = &quot;USA&quot;;
+
+// Retrieve the current transaction manager
+TransactionManager tx = TransactionManager.ThreadTransactionMgr();
+
+try
+{
+    tx.BeginTransaction();
+
+    // Save both objects within the same transaction
+    emp.Save();
+    prod.Save();
+
+    // Deliberately throw an error, to cause the transaction to rollback
+    throw new Exception(&quot;Deliberate exception, transaction rolled back.&quot;);
+
+    tx.CommitTransaction();
+
+}
+catch(Exception ex)
+{
+    tx.RollbackTransaction();
+    TransactionManager.ThreadTransactionMgrReset();
+}
+
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Dim prod As Products = New Products
+Dim emp As Employees = New Employees
+
+' Update the requested product
+prod.LoadByPrimaryKey(4)
+prod.UnitsInStock += CType(1, Short)
+
+' Update the requested employee
+emp.LoadByPrimaryKey(1)
+emp.s_Country = &quot;USA&quot;
+
+' Retrieve the current transaction manager
+Dim tx As TransactionManager = TransactionManager.ThreadTransactionMgr()
+
+Try
+    tx.BeginTransaction()
+
+    ' Save both objects within the same transaction
+    emp.Save()
+    prod.Save()
+
+    ' Deliberately throw an error, to cause the transaction to rollback
+    Throw New Exception(&quot;Deliberate exception, transaction rolled back.&quot;)
+
+    tx.CommitTransaction()
+
+Catch ex As Exception
+    tx.RollbackTransaction()
+    TransactionManager.ThreadTransactionMgrReset()
+End Try
+</pre>
+	<h2>Usage Notes</h2>
+	<p>The <b>ThreadTransactionMgrReset</b> method cleans up after a rollback, 
+	but you should only call this in a WinForm application. In an ASP.NET 
+	application, it is better to call the reset on the Page_Init event.</p>
+	<!-- See Also -->
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps-scenarios.htm">
+	Key Scenarios</a>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

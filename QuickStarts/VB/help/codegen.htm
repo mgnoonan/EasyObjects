@@ -1,0 +1,93 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Using Code Generation</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Using Code Generation</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+	<p class="dtH1">Code generation is very important to object/relational 
+	mapping frameworks such as EasyObjects.NET. A large portion of the code for 
+	your business objects are derived from database tables, and coding all of it 
+	by hand is both tedious and unnecessary when the task can be automated. 
+	EasyObjects.NET comes with templates to automatically generate your stored 
+	procedures and business objects.</p>
+	<h4>Benefits of code generation</h4>
+	<ul>
+		<li>Automate common coding tasks, reducing the burden on developers.</li>
+		<li>Reduced maintenance costs.</li>
+		<li>Reduced coding errors.</li>
+		<li>Increased developer productivity.</li>
+		<li>Implement best practices for an entire development team.</li>
+	</ul>
+	<h4>Generating EasyObjects.NET</h4>
+	<ol>
+		<li>Download and install the
+		<a href="http://www.mygenerationsoftware.com">MyGeneration </a>code 
+		generator. Refer to their documentation for installation information. 
+		</li>
+		<li>
+		<p class="dtH1">In MyGeneration, open the SQL DAAB Stored Procedures 
+		template (from the EasyObjects\Scripts folder). </li>
+		<li>
+		<p class="dtH1">Run the template to generate the stored procedures for a 
+		database table.</li>
+		<li>
+		<p class="dtH1">Copy and paste the template output into SQL Server's 
+		Query Analyzer, and run the template.</li>
+		<li>
+		<p class="dtH1">Open either the C# or VB Business Entity template, 
+		depending on your language preference, from the EasyObjects\Scripts 
+		folder. This template will generate your business object abstract (MustInherit 
+		in VB) base class, 
+		with all the database access logic and strongly-typed properties derived from 
+		the database schema. <b>Do not hand edit this class.</b> If your 
+		database table changes for any reason, you can regenerate this class. 
+		Any hand edits would be lost. The generated class typically starts with 
+		an underscore (&quot;_&quot;) to differentiate it from the concrete class.</li>
+		<li>
+		<p class="dtH1">Open either the C# or VB Concrete Class template, 
+		depending on your language preference, from the EasyObjects\Scripts 
+		folder. This template will generate a skeleton concrete class.<b> Place 
+		any custom code in this class.</b> The concrete class inherits from the 
+		abstract 
+		business object, so all of the generated methods and properties are 
+		available to you, but this class will not be regenerated. So any custom 
+		logic will be preserved if you have to regenerate the base class. In your 
+		user interface code, the concrete class will be the one you instantiate.</li>
+		<li>
+		<p class="dtH1">In Visual Studio, add the newly generated business 
+		object class and concrete class to your project.</li>
+		<li>
+		<p class="dtH1">In your project, add a reference to the EasyObject and 
+		Enterprise Library assemblies (see <a href="developapps-code.htm">Adding 
+		Application Code</a>).</li>
+		<li>
+		<p class="dtH1">Prepare to wow your customers.</li>
+	</ol>
+	<h4 class="dtH4">See also</h4>
+	<p><a href="developapps-code.htm">Adding Application Code</a>
+	<!--Footer Start-->
+	<div class="footer"><br>&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end-->
+</div>
+<!--Topic end-->
+
+</body>
+
+</html>

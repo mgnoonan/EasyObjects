@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<package> 
+  <metadata> 
+    <id>EasyObjects.NET.MSAccess.EL3</id> 
+    <title>EasyObjects.NET Microsoft Access (EL3)</title>
+    <version>2.0.0</version> 
+    <authors>Matthew Noonan</authors> 
+    <owners>Matthew Noonan</owners>
+    <description>An object relational mapper library that uses the Data Access Application Block (DAAB) from the Enterprise Library.</description> 
+    <projectUrl>http://www.easyobjects.net</projectUrl>
+    <licenseUrl>http://www.easyobjects.net/Downloads.aspx</licenseUrl>
+    <tags>easyobjects orm enterprise library entlib data access application block daab .net20</tags>
+    <language>en-US</language> 
+    <dependencies>
+      <dependency id="EntLib3.DAAB" version="3.1.0" />
+      <dependency id="EasyObjects.NET.EL3" version="2.0.0" />
+    </dependencies> 
+  </metadata> 
+</package>

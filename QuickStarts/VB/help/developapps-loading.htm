@@ -1,0 +1,113 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Loading an EasyObject</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Loading an EasyObject</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+	<p>A common database task is to load a business object with data from the 
+	database. For example, a reporting application may need to display a list of products 
+	made by the company, or a detail report may need to display just one 
+	product.</p>
+	<h2>Typical Goals</h2>
+	<p>In this scenario, you want to retrieve one or multiple rows from a database and 
+	load the EasyObject business object with the results. EasyObjects can 
+	internally hold as many rows</p>
+	<p>These goals can be summarized as follows: </p>
+	<ul>
+		<li>You want to retrieve data for read-only purposes, which typically 
+		means that you want to display it. 
+		</li>
+		<li>You want to bind to a Web Form control for display. 
+		</li>
+		<li>You do not need to cache the data. After it is used it is discarded. 
+		</li>
+	</ul>
+	<h2>Solution</h2>
+	<p>Use the <b>LoadByPrimaryKey</b> method provided by the <b>EasyObject</b> class. For example, if the application uses Products, you might pass a product ID to the LoadByPrimaryKey 
+	method to indicate 
+	which individual product to retrieve. Or use the <b>LoadAll</b> method to 
+	retrieve all the products in the database.</p>
+	<p>The <b>DefaultView</b> property of the <b>EasyObject</b> supports 
+	data binding and can act as a data source for a number of ASP.NET server 
+	controls—for example, the <strong>DataList</strong> or <strong>DataGrid</strong> 
+	controls. This provides an efficient and flexible way to render the results 
+	in a browser.</p>
+	<h2>Using LoadByPrimaryKey</h2>
+	<p>The following code shows how to use the <b>LoadByPrimaryKey</b> method.</p>
+	<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Products prod = <span class="kwrd">new</span> Products();
+<span class="kwrd">if</span> (prod.LoadByPrimaryKey(4))
+{
+    productsGrid.DataSource = prod.DefaultView;
+    productsGrid.DataBind();
+}
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">Dim</span> prod <span class="kwrd">As</span> Products = <span class="kwrd">New</span> Products
+<span class="kwrd">If</span> prod.LoadByPrimaryKey(4) <span class="kwrd">Then</span>
+    productsGrid.DataSource = prod.DefaultView
+    productsGrid.DataBind()
+<span class="kwrd">End</span> <span class="kwrd">If</span>
+</pre>
+	<p>&nbsp;</p>
+	<h2>Using LoadAll</h2>
+	<p>The following code shows how to use the <b>LoadAll</b> method.</p>
+	<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Products prod = <span class="kwrd">new</span> Products();
+<span class="kwrd">if</span> (prod.LoadAll())
+{
+    productsGrid.DataSource = prod.DefaultView;
+    productsGrid.DataBind();
+}
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">Dim</span> prod <span class="kwrd">As</span> Products = <span class="kwrd">New</span> Products
+<span class="kwrd">If</span> prod.LoadAll() <span class="kwrd">Then</span>
+    productsGrid.DataSource = prod.DefaultView
+    productsGrid.DataBind()
+<span class="kwrd">End</span> <span class="kwrd">If</span>
+</pre>
+	<h2>Usage Notes</h2>
+	<p>The <b>LoadByPrimaryKey</b> method may have different signatures in each 
+	business object, depending on what the primary key is for the database table which 
+	the EasyObject represents.</p>
+	<!-- See Also -->
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps-scenarios.htm">
+	Key Scenarios</a>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

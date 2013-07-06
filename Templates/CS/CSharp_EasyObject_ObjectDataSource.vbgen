@@ -1,0 +1,563 @@
+﻿##|TYPE Template
+##|UNIQUEID 2585de92-62b2-418f-ac0b-a3156fbc3eb4
+##|TITLE EasyObjects 2 C# ObjectDataSource
+##|NAMESPACE EasyObject.C#
+##|SOURCE_TYPE Source
+##|OUTPUT_LANGUAGE C#
+##|COMMENTS_BEGIN
+Generate EasyObject support methods for an ObjectDataSource.
+##|COMMENTS_END
+##|GUI_ENGINE Microsoft Script
+##|GUI_LANGUAGE VBScript
+##|GUI_BEGIN
+Dim cmbDatabases
+Dim lstTables
+Dim chk
+Dim cmbFormat
+Dim txtFormat
+Dim txtPrefix
+
+Sub setup()
+
+	If context.Objects.ContainsKey("DnpUtils") Then
+		DnpUtils.ReadInputFromCache(context)
+	End if
+
+	If Not input.Contains("lstTables") Or Not input.Contains("txtPath") Then
+
+		ui.Title = "Generate C# EasyObject from a Table."
+		ui.Width  = 330
+		ui.Height = 640
+
+		' Grab default output path
+		Dim sOutputPath
+		sOutputPath = ""
+		If input.Contains("defaultOutputPath") Then 
+			sOutputPath = input.Item("defaultOutputPath")
+		End If
+
+		ui.AddLabel "lblPath", "Output file path: ",  "Select the output path."
+		ui.AddTextBox "txtPath", sOutputPath, "Select the Output Path."
+		ui.AddFilePicker "btnPath", "Select Path", "Select the Output Path.", "txtPath", true
+		
+		ui.AddLabel "lblNamespace", "Namespace: ",  "Provide your objects namespace."
+		ui.AddTextBox "txtNamespace", "Your.Namespace", "Provide your objects namespace."			
+
+		' List Databases in a ComboBox
+		ui.AddLabel "lblDatabases", "Select a database:", "Select a database in the dropdown below."
+		Set cmbDatabases = ui.AddComboBox("cmbDatabase", "Select a database.")
+
+		' List Tables in a listbox
+		ui.AddLabel "lblTables", "Select tables:", "Select tables from the listbox below."
+		Set lstTables = ui.AddListBox ("lstTables", "Select tables:")
+		'lstTables.IsMultiSelect = false
+		lstTables.Height = 120
+		
+		' Prefix
+		ui.AddLabel "lblPrefix", "Procedure prefix:", "Enter a procedure prefix."
+		Set txtPrefix = ui.AddTextBox("txtPrefix", "", "Enter the procedure prefix")
+		
+		' List proc formats
+		ui.AddLabel "lblFormat", "Select procedure format:", "Select a procedure format from the listbox below."
+		Set cmbFormat = ui.AddComboBox("cmbFormat", "Select a procedure format.")
+		cmbFormat.AttachEvent "onchange", "cmbFormat_onchange"
+		Set txtFormat = ui.AddTextBox("txtFormat", "", "Enter the procedure format")
+		txtFormat.Enabled = false
+		setupFormatDropdown cmbFormat
+		
+		Set prefix = ui.AddCheckBox("prefix", "Prefix class with underscore?", true, "If checked, the file on disk will begin with an underscore")
+		
+		If MyMeta.DriverString = "FIREBIRD" Then
+			Set chk = ui.AddCheckBox("ckDialect3", "DIALECT 3", false, "If checked, the stored procedure will use dialect 3 syntax")
+			chk.forecolor = "red"
+		End If
+
+		' Attach the onchange event to the cmbDatabases control.
+		setupDatabaseDropdown cmbDatabases
+		
+		ui.ShowGUI = true
+	Else 
+		ui.ShowGUI = false
+	End if
+
+End Sub
+
+Sub setupDatabaseDropdown(cmbDatabases)
+	cmbDatabases.BindData MyMeta.Databases
+	
+	If Not MyMeta.DefaultDatabase Is Nothing Then
+		cmbDatabases.SelectedValue = MyMeta.DefaultDatabase.Name
+		bindTables cmbDatabases.SelectedValue
+	End If
+	
+	cmbDatabases.AttachEvent "onchange", "cmbDatabases_onchange"
+End Sub
+
+Sub bindTables(sDatabase)
+	Set db = MyMeta.Databases(sDatabase)
+	lstTables.BindData(db.Tables)
+End Sub
+
+' Event Handler
+Sub cmbDatabases_onchange(control)
+	Set cmbDatabases = ui.item("cmbDatabase")
+	bindTables cmbDatabases.SelectedText
+End Sub
+
+Sub setupFormatDropdown(cmbFormat)
+	cmbFormat.Add "daab", "ASP.NET Starter Kits"
+	cmbFormat.Add "doodads", "dOOdads"
+	cmbFormat.Add "custom", "Custom"
+	cmbFormat.SelectedValue = "daab"
+	cmbFormat_onchange(cmbFormat)
+End Sub
+
+Sub cmbFormat_onchange(control)
+
+	txtFormat.Enabled = False
+
+	Select Case cmbFormat.SelectedValue
+		Case "daab"
+			txtFormat.Text = "{prefix}{verb}{table}"
+			txtPrefix.Text = "daab_"
+		Case "doodads"
+			txtFormat.Text = "{prefix}{table}{verb}"
+			txtPrefix.Text = "proc_"
+		Case "custom"
+			txtFormat.Enabled = True
+	End Select
+	
+End Sub
+##|GUI_END
+##|BODY_MODE Markup
+##|BODY_ENGINE Microsoft Script
+##|BODY_LANGUAGE VBScript
+##|BODY_TAG_START <%
+##|BODY_TAG_END %>
+##|BODY_BEGIN
+<%
+'------------------------------------------------------------------------------
+' Copyright 2007 by Noonan Consulting Inc.
+' All Rights Reserved 
+'
+' Permission to use, copy, modify, and distribute this software and its 
+' documentation for any purpose and without fee is hereby granted, 
+' provided that the above copyright notice appear in all copies and that 
+' both that copyright notice and this permission notice appear in 
+' supporting documentation. 
+'
+' NCI DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS 
+' SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY 
+' AND FITNESS, IN NO EVENT SHALL NCI BE LIABLE FOR ANY 
+' SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES 
+' WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, 
+' WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER 
+' TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE 
+' OR PERFORMANCE OF THIS SOFTWARE. 
+'------------------------------------------------------------------------------
+' CSharp_EasyObject_ObjectDataSource.vbgen
+' Last Update : 01/20/2007
+'------------------------------------------------------------------------------
+
+If context.Objects.ContainsKey("DnpUtils") Then
+	DnpUtils.SaveInputToCache(context)
+End if
+
+Dim bFirst
+Dim name
+Dim alias
+Dim objTable
+Dim objColumn
+Dim tableNames
+Dim language
+Dim databaseName
+Dim database
+Dim namespace
+Dim props
+Dim bOtherColumns
+Dim sPrefix
+Dim sFormat
+Dim sStyle
+
+Dim IDbCommand
+Dim IDataParameter
+Dim ParameterPrefix
+
+prefix = input.Item("prefix")
+
+' Grab the namespace
+namespace = input.Item("txtNamespace")
+
+' Set the Language for our column data types
+MyMeta.Language = "C#"
+
+' Grab the choices the user made in our UI Script (see Interface Code tab)
+Set tableNames = input.Item("lstTables")
+sPrefix = input.Item("txtPrefix")
+sFormat = input.Item("txtFormat")
+sStyle = input.Item("cmbFormat")
+
+databaseName  = input.Item("cmbDatabase")
+Set database = MyMeta.Databases(databaseName)
+
+' Loop through the tables the user selected and generate the business entities
+For intLp = 0 To tableNames.Count - 1
+
+	Set objTable = database.Tables(tablenames.item(intLp))
+	Set props = objTable.Properties
+	
+	bOtherColumns = (objTable.Columns.Count > objTable.PrimaryKeys.Count)
+	tableAlias = TrimSpaces(objTable.Alias)
+
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+' Now we have the table that we desire to build a Business Object From, let us begin.
+'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%>		/// <summary>
+		/// Loads the business object with info from the database, based on the requested primary key.
+		/// </summary>
+<%	output.tabLevel = 2
+	For Each objColumn in objTable.PrimaryKeys
+		output.autoTabLn "/// <param name=""" & GetAlias(objColumn) & """>" & objColumn.Description & "</param>"
+	Next 
+%>		/// <returns>A DataTable containing the results of the query</returns>
+		/* Copy the following lines to your ObjectDataSource control
+            <SelectParameters>
+<%		output.tabLevel = 4
+		For Each objColumn in objTable.PrimaryKeys
+			output.autoTabLn "<asp:Parameter Name=""" & GetAlias(objColumn) & """ Type=""" & objColumn.LanguageType & """ />"
+		Next 
+%>			</SelectParameters>
+		*/
+		public static DataTable odsLoadByPrimaryKey(<%
+			bFirst = true
+			For Each objColumn in objTable.PrimaryKeys
+				If Not bFirst Then
+					output.write ", "
+				End If
+	
+				output.write objColumn.LanguageType & " " & GetAlias(objColumn)
+	
+				bFirst = false
+			Next 
+		%>)
+		{
+            <%= tableAlias %> obj = new <%= tableAlias %>();
+
+<%		output.tabLevel = 3
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			output.autoTabLn "obj.Where." & alias & ".Value = " & alias & ";"
+		Next
+%>			obj.Query.Load();
+
+            return obj.DefaultView.ToTable();
+		}
+
+		// Foreign Keys
+<%	For Each objColumn in objTable.Columns
+		If objColumn.IsInForeignKey And Not objColumn.IsInPrimaryKey Then
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+%>		/* Copy the following lines to your ObjectDataSource control
+            <SelectParameters>
+<%		output.tabLevel = 4
+		For Each objCol2 in objTable.PrimaryKeys
+			output.autoTabLn "<asp:QueryStringParameter Name=""" & GetAlias(objCol2) & """ QueryStringField="""" Type=""" & objCol2.LanguageType & """ />"
+		Next 
+%>			</SelectParameters>
+		*/
+		public static DataTable odsLoadBy<%= alias & "(" & objColumn.LanguageType & " " & alias %>)
+		{
+            <%= tableAlias %> obj = new <%= tableAlias %>();
+
+<%		output.tabLevel = 3
+		output.autoTabLn "obj.Where." & alias & ".Value = " & alias & ";"
+%>			obj.Query.Load();
+
+            return obj.DefaultView.ToTable();
+		}
+<%		End If
+	Next
+%>
+		/* Copy the following lines to your ObjectDataSource control
+            <DeleteParameters>
+<%		output.tabLevel = 4
+		For Each objColumn in objTable.PrimaryKeys
+			output.autoTabLn "<asp:Parameter Name=""" & GetAlias(objColumn) & """ Type=""" & objColumn.LanguageType & """ />"
+		Next 
+%>			</DeleteParameters>
+		*/
+		public static bool odsDelete(<%
+			bFirst = true
+			For Each objColumn in objTable.PrimaryKeys
+				If Not bFirst Then
+					output.write ", "
+				End If
+	
+				output.write objColumn.LanguageType & " " & GetAlias(objColumn)
+	
+				bFirst = false
+			Next 
+		%>)
+		{
+            <%= tableAlias %> obj = new <%= tableAlias %>();
+
+<%		output.tabLevel = 3
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			output.autoTabLn "obj.Where." & alias & ".Value = " & alias & ";"
+		Next
+%>			obj.Query.Load();
+			obj.MarkAsDeleted();
+			obj.Save();
+
+            return (obj.RowCount == 0);
+		}
+		
+		/* Copy the following lines to your ObjectDataSource control
+            <UpdateParameters>
+<%		output.tabLevel = 4
+		For Each objColumn in objTable.Columns
+			output.autoTabLn "<asp:Parameter Name=""" & GetAlias(objColumn) & """ Type=""" & objColumn.LanguageType & """ />"
+		Next 
+%>			</UpdateParameters>
+		*/
+		public static bool odsUpdate(<%
+			bFirst = true
+			For Each objColumn in objTable.Columns
+				If Not bFirst Then
+					output.write ", "
+				End If
+				
+				output.write objColumn.LanguageType & " " & GetAlias(objColumn)
+				bFirst = false
+			Next 
+		%>)
+		{
+            <%= tableAlias %> obj = new <%= tableAlias %>();
+
+<%		output.tabLevel = 3
+		For Each objColumn in objTable.PrimaryKeys
+			name = GetActualName(objColumn)
+			alias = GetAlias(objColumn)
+			output.autoTabLn "obj.Where." & alias & ".Value = " & alias & ";"
+		Next
+%>			if (obj.Query.Load())
+			{
+<%		output.tabLevel = 4
+		For Each objColumn in objTable.Columns
+			If Not objColumn.IsInPrimaryKey Then
+				name = GetActualName(objColumn)
+				alias = GetAlias(objColumn)
+				output.autoTabLn "obj." & alias & " = " & alias & ";"
+			End If
+		Next
+%>
+				obj.Save();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+<% 
+	' Save the output file for this Table
+	Dim filename
+	filename = input.item("txtPath")
+
+	Dim length
+	Dim pos
+	lenth = Len(filename)
+	pos = InStrRev(filename, "\") 
+
+	If Not pos = lenth Then
+		filename = filename & "\"
+	End If
+
+	If prefix = True Then 
+		filename = filename & "_" & TrimSpaces(objTable.Alias) & ".cs"
+	Else 
+		filename = filename & TrimSpaces(objTable.Alias) & ".cs"
+	End If
+
+	'output.save filename, false
+	buffer = buffer & output.text
+	output.clear
+Next '  tableName
+	
+output.write buffer
+
+
+'===========================================================================
+' These are support routines called by the above scirpt
+'===========================================================================
+Function GetAlias(objColumn)
+	Dim name
+	name = TrimSpaces(objColumn.Alias)
+	GetAlias = UCase(Left(name, 1)) & Right(name, Len(name) -1)
+End Function
+
+Function GetName(objColumn)
+	Dim name
+	name = GetActualName(objColumn)
+	GetName = UCase(Left(name, 1)) & Right(name, Len(name) -1)
+End Function
+
+Function GetActualName(objColumn)
+	Dim name
+	GetActualName = objColumn.Name
+End Function
+
+Function TrimSpaces(str)
+
+	Dim tname
+	Dim name
+	Dim char
+	Dim l
+
+	name = ""
+	tname = str
+	l = Len(tname)
+
+	For j = 1 To l
+		char = Mid(tname, j, 1)
+		If Not char = " " Then
+			name = name & char
+		End If
+	Next
+
+	TrimSpaces = name
+End Function
+
+Function GetParameterPrefix
+
+	Select Case MyMeta.DbTarget 
+		Case "OleDb"
+			GetParameterPrefix = "@"
+		Case "SqlClient"
+			GetParameterPrefix = "@"
+		Case "OracleClient"
+			GetParameterPrefix = "p_"
+		Case "FirebirdSql"
+			GetParameterPrefix = "@"			
+	End Select
+
+End Function
+
+Function CreateProcedureName(objTable, suffix)
+
+	Dim bFirst
+    Dim str 
+	
+	bFirst = true
+	Select Case suffix
+		Case "L"
+			str = "GetAll"
+		Case "K"
+			str = "Get"
+		Case "U"
+			str = "Update"
+		Case "I"
+			str = "Add"
+		Case "D"
+			str = "Delete"
+	End Select
+	
+	CreateProcedureName = BuildProcedureName(BuildVerb(str, sStyle), objTable.Name, objTable.Alias)
+
+End Function
+
+Function BuildProcedureName(sVerb, sTableName, sTableAlias)
+	Dim sName
+	
+	sName = Replace(sFormat, "{verb}", sVerb)
+	sName = Replace(sName, "{table}", TrimSpaces(sTableName))
+	sName = Replace(sName, "{alias}", TrimSpaces(sTableAlias))
+	sName = Replace(sName, "{prefix}", sPrefix)
+	
+	BuildProcedureName = sName
+	
+End Function
+
+Function BuildVerb(sVerb, sStyle)
+
+	Select Case sStyle
+		Case "doodads"
+			Select Case sVerb
+				Case "Get"
+					sVerb = "LoadByPrimaryKey"
+				Case "GetAll"
+					sVerb = "LoadAll"
+				Case "Add"
+					sVerb = "Insert"
+			End Select
+		Case "daab"
+	End Select
+	
+	BuildVerb = sVerb
+	
+End Function
+
+Function GetFullType(objColumn)
+
+	Select Case LCase(objColumn.LanguageType)
+		Case "string"
+			GetFullType = "String"
+		Case "int"
+			GetFullType = "Integer"
+		Case "short"
+			GetFullType = "Short"
+		Case "decimal"
+			GetFullType = "Decimal"
+		Case "double"
+			GetFullType = "Double"
+		Case "datetime"
+			GetFullType = "DateTime"
+		Case "byte[]"
+			GetFullType = "Byte"
+		Case "byte"
+			GetFullType = "Byte"
+		Case "bool"
+			GetFullType = "Boolean"
+		Case "float"
+			GetFullType = "Float"
+		Case "long"
+			GetFullType = "Long"
+		Case Else
+			GetFullType = objColumn.LanguageType
+	End Select
+	
+End Function
+
+Function GetParameterSize(objColumn)
+
+	Select Case objColumn.DbTargetType
+		Case "DbType.Int32"
+			GetParameterSize = "4"
+		Case "DbType.Binary"
+			GetParameterSize = "8"
+		Case "DbType.Guid"
+			GetParameterSize = "16"
+		Case "DbType.StringFixedLength", "DbType.AnsiStringFixedLength", "DbType.String", "DbType.AnsiString"
+			GetParameterSize = objColumn.CharacterMaxLength
+		Case Else
+			GetParameterSize = "0"
+	End Select
+
+End Function
+
+Function ConvertToBoolean(test)
+	
+	If test Then
+		ConvertToBoolean = "true"
+	Else
+		ConvertToBoolean = "false"
+	End If
+	
+	
+End Function
+%>
+##|BODY_END

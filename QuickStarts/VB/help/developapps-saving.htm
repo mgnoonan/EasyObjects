@@ -1,0 +1,125 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Adding and Updating data in an EasyObject business object</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">&nbsp;
+	</div>
+	<div id="titleRow" style="PADDING-RIGHT: 10px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px">
+		<h1 class="dtH1">Adding and Updating data in an EasyObject business object</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="PADDING-RIGHT: 20px; OVERFLOW: auto; TOP: 0px;" valign="bottom">
+	<!-- Page Content -->
+	<p>A common application task is to update or add new data to a business object 
+	and then persist that data to the 
+	database. For example, a human resources application may need to add new 
+	employees to the company, or an employee may have moved requiring an address 
+	change. EasyObjects.NET allows the developer to make as many changes 
+	locally, then save the changes all at once.</p>
+	<h2>Typical Goals</h2>
+	<p>In this scenario, you want to retrieve one or multiple rows from a database and 
+	load the EasyObject business object with the results, make changes or add 
+	new records and then save the changes to the database.</p>
+	<p>These goals can be summarized as follows: </p>
+	<ul>
+		<li>You want to retrieve data for add or update purposes.  
+		</li>
+		<li>You want to make all the changes locally before saving.  
+		</li>
+		<li>You want to make one call to save the changes to the database. 
+		</li>
+	</ul>
+	<h2>Solution</h2>
+	<p>Use the <b>Save</b> method provided by the <b>EasyObject</b> class. For example, if the application uses a 
+	Employees, you might pass a employee ID to the LoadByPrimaryKey method to indicate 
+	which employee record to retrieve. Then make the necessary data updates and 
+	call the <b>Save</b> method to update the record in the database..</p>
+	<p>Alternatively, you can call the <b>AddNew</b> method of the <b>EasyObject</b> 
+	class to add a new record to the business object. Fill in all the required 
+	fields using the strongly-typed properties and call the <b>Save</b> method 
+	to add the record to the database.</p>
+	<p>EasyObjects.NET internally maintains the state of each data row, so rows 
+	with a <b>DataRowState.Modified </b>call the update logic, while <b>
+	DataRowState.Added </b>call the insert logic.</p>
+	<h2>Using Save</h2>
+	<p>The following code shows how to use the <b>Save</b> method.</p>
+	<p>[C#]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Products prod = new Products();
+
+// Update the requested product
+prod.LoadByPrimaryKey(4);
+prod.UnitsInStock += 1;
+
+// Call AddNew() to add a new row to the EasyObject. You must fill in all 
+// required fields or an error will result when you call Save().
+prod.AddNew();
+
+// Note the use of the 's_' fields, which take strings as arguments. If this object
+// were being loaded from TextBox objects on a WinForm, you don't have to worry about
+// the datatype because this is handled for you in EasyObjects
+prod.s_ProductName = &quot;EasyObjects&quot;;
+prod.s_Discontinued = &quot;True&quot;;
+prod.s_QuantityPerUnit = &quot;10&quot;;
+prod.s_ReorderLevel = &quot;100&quot;;
+prod.s_UnitPrice = &quot;49.95&quot;;
+prod.s_UnitsInStock = &quot;200&quot;;
+
+// Only one call to Save() to do the Add and Update
+prod.Save();
+
+</pre>
+	<p>[VB]</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Dim prod As Products = New Products
+
+' Update the requested product
+prod.LoadByPrimaryKey(4)
+prod.UnitsInStock += CType(1, Short)
+
+' Call AddNew() to add a new row to the EasyObject. You must fill in all 
+' required fields or an error will result when you call Save().
+prod.AddNew()
+
+' Note the use of the 's_' fields, which take strings as arguments. If this object
+' were being loaded from TextBox objects on a WinForm, you don't have to worry about
+' the datatype because this is handled for you in EasyObjects
+prod.s_ProductName = &quot;EasyObjects&quot;
+prod.s_Discontinued = &quot;True&quot;
+prod.s_QuantityPerUnit = &quot;10&quot;
+prod.s_ReorderLevel = &quot;100&quot;
+prod.s_UnitPrice = &quot;49.95&quot;
+prod.s_UnitsInStock = &quot;200&quot;
+
+' Only one call to Save() to do the Add and Update
+prod.Save()
+</pre>
+	<h2>Usage Notes</h2>
+	<!-- See Also -->
+	<h4 class="dtH4">See also</h4>
+	<p>
+	<a href="developapps-scenarios.htm">
+	Key Scenarios</a>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc. All rights reserved.</i></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+
+</body>
+
+</html>

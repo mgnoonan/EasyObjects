@@ -1,0 +1,107 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="MSDN.css" />
+<title>Design of EasyObjects.NET</title>
+</head>
+
+<body>
+
+<!--NONSCROLLING BANNER START-->
+<div id="nsbanner">
+	<div id="bannerrow1">
+		&nbsp;</div>
+	<div id="titleRow" style="padding-left: 22px; padding-right: 10px; padding-top: 0px; padding-bottom: 0px">
+		<h1 class="dtH1">Design of the EasyObjects.NET</h1>
+	</div>
+</div>
+<!--NONSCROLLING BANNER END--><!--Topic Start-->
+<div id="nstext" style="overflow: auto; top: 0px; padding-right: 20px" valign="bottom">
+	<!-- Page Content -->
+	<p>EasyObjects.NET includes the following features:</p>
+	<ul>
+		<li>A simple and efficient way of working with commonly used databases.  
+		</li>
+		<li>Transparency when developing for multiple types of databases.</li>
+		<li>Mapping between logical database instance names and physical 
+		connections.</li>
+		<li>Strongly-typed properties that match the database table or view 
+		columns.</li>
+		<li>Support for advanced database features, including dynamic queries, 
+		null value handling and transaction support.</li>
+		<li>Support for the Enterprise Library Configuration Tool.</li>
+	</ul>
+	<h2>Design Goals</h2>
+	<p>EasyObjects.NET was designed to achieve the following goals:</p>
+	<ul>
+		<li>To encapsulate the logic used to perform the most common data access 
+		tasks. 
+		</li>
+		<li>To relieve developers of the need to write duplicate code for common 
+		data access tasks. 
+		</li>
+		<li>To simplify and abstract custom query operations.  
+		</li>
+		<li>To perform within 5 percent of ADO.NET's efficiency. 
+		</li>
+		<li>To be syntactically compatible with
+		<a href="http://www.mygenerationsoftware.com/portal/dOOdads/Overview/tabid/63/Default.aspx">
+		MyGeneration's dOOdads architecture</a>.  
+		</li>
+		<li>To ensure that all the application block's functions work 
+		identically for different types of databases. 
+		</li>
+		<li>To ensure that applications written for one type of database are, in 
+		terms of data access, the same as applications written for another type 
+		of database. 
+		</li>
+	</ul>
+	<h2>Design Highlights</h2>
+	<p>The following illustration shows the interrelationship between the key 
+	classes in the Data Access Application Block.</p>
+	<p class="fig">
+	<img alt="EasyObjects Class Diagram" src="EasyObjects.gif" border="0"></p>
+	<p class="label"><b>Figure 1:</b> <i>Design of the EasyObjects.NET</i></p>
+	<p>The abstract base class <b>EasyObject</b> defines the common interface 
+	and provides much of the implementation for the data access methods. All of 
+	the business object concrete classes inherit from the EasyObject class. 
+	Because EasyObjects.NET is built on the Enterprise Library's Data Access 
+	Application Block, it provides common functionality that 
+	is implemented differently from database to database, as well as 
+	functionality unique to that database system.</p>
+	<p>Query commands and syntax differ across database 
+	systems. The abstract class <b>DynamicQuery</b> provides the base class 
+	definition for database-specific classes that will implement the query 
+	syntax 
+	and parameter handling.</p>
+	<p>The <b>DynamicQueryFactory</b> class provides a static method, <b>
+	DynamicQuery</b>, to encapsulate the logic that creates the appropriate 
+	database provider object. By using the factory to create the correct object, the client code is not bound to a specific database type. 
+	Developers can also create their own custom providers, including replacing 
+	the included providers.</p>
+	<p>The <b>DynamicQueryFactory</b> class uses the Configuration Application Block 
+	to retrieve the required configuration information, including the fully 
+	qualified type name and the assembly name of the specific <b>DynamicQuery</b>-derived 
+	class to be created.</p>
+	<p>EasyObjects.NET supports automatic transaction handling. The <b>
+	TransactionManager</b> 
+	class allows all EasyObjects on the same connection to participate in the 
+	same transaction, <i>without the need to pass a transaction object around</i>. </p>
+	<p>The <b>SchemaItem</b> class contains meta-data from the database table, 
+	including field lengths and database type. The <b>Schema</b> class is a 
+	collection of SchemaItems.</p>
+	<p>The <b>WhereParameter</b> class is used for constructing 
+	database-independent dynamic queries.</p>
+	<!--Footer Start-->
+	<div class="footer">
+		<br>
+&nbsp;<hr>
+<!--Feedback Link-->
+		<!--Copyright-->
+		<p><i>© 2005 Noonan Consulting Inc.. All rights reserved.</i></p></div>
+	<!--Footer end--></div>
+<!--Topic end-->
+</body>
+
+</html>
