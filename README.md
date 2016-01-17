@@ -3,6 +3,8 @@ EasyObjects
 
 New home of the EasyObjects 2.x repository. Version 1.2 of EasyObjects can still be found at [Tigris](http://easyobjects.tigris.org).
 
+[![Build status](https://ci.appveyor.com/api/projects/status/edswglxyrbn7t7sa?svg=true)](https://ci.appveyor.com/project/mgnoonan/easyobjects)
+
 EasyObjects.NET is an object relational mapper (ORM) architecture based on a combination of the popular MyGeneration dOOdads architecture and the Microsoft Enterprise Library.
 
 dOOdads provides a rich set of functionality for an application's business object and data layer, including support for transactions, null value handling, and standard CRUD operations.
