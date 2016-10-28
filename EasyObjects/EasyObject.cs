@@ -804,7 +804,7 @@ namespace NCI.EasyObjects
             Database db = GetDatabase();
             string sqlCommand = sp;
             DbCommand dbCommand;
-            if ((commandType == CommandType.StoredProcedure))
+            if (commandType == CommandType.StoredProcedure)
             {
                 dbCommand = db.GetStoredProcCommand(sqlCommand);
             }
@@ -812,7 +812,7 @@ namespace NCI.EasyObjects
             {
                 dbCommand = db.GetSqlStringCommand(sqlCommand);
             }
-            if ((commandTimeout > 0))
+            if (commandTimeout >= 0)
             {
                 dbCommand.CommandTimeout = commandTimeout;
             }
@@ -906,7 +906,7 @@ namespace NCI.EasyObjects
             string sqlCommand = sp;
             DbCommand dbCommand;
 
-            if ((commandType == CommandType.StoredProcedure))
+            if (commandType == CommandType.StoredProcedure)
             {
                 dbCommand = db.GetStoredProcCommand(sqlCommand);
             }
@@ -914,7 +914,7 @@ namespace NCI.EasyObjects
             {
                 dbCommand = db.GetSqlStringCommand(sqlCommand);
             }
-            if ((commandTimeout > 0))
+            if (commandTimeout >= 0)
             {
                 dbCommand.CommandTimeout = commandTimeout;
             }
@@ -1013,7 +1013,7 @@ namespace NCI.EasyObjects
             string sqlCommand = sp;
             DbCommand dbCommand;
 
-            if ((commandType == CommandType.StoredProcedure))
+            if (commandType == CommandType.StoredProcedure)
             {
                 dbCommand = db.GetStoredProcCommand(sqlCommand);
             }
@@ -1021,7 +1021,7 @@ namespace NCI.EasyObjects
             {
                 dbCommand = db.GetSqlStringCommand(sqlCommand);
             }
-            if ((commandTimeout > 0))
+            if (commandTimeout >= 0)
             {
                 dbCommand.CommandTimeout = commandTimeout;
             }
