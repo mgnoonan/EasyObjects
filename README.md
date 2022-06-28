@@ -1,6 +1,6 @@
 # EasyObjects 2.0
 
-New home of the EasyObjects 2.0 repository. Version 1.2 of EasyObjects can still be found at [here](https://github.com/mgnoonan/EasyObjects12).
+New home of the EasyObjects 2.0 repository. Version 1.2 of EasyObjects can still be found [here](https://github.com/mgnoonan/EasyObjects12).
 
 EasyObjects.NET is an object relational mapper (ORM) architecture based on a combination of the popular MyGeneration dOOdads architecture and the Microsoft Enterprise Library.
 
